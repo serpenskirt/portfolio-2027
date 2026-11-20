@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ken Wenrui Zhao</title>
+<style>
+  /* One unit = one Figma pixel of the 1920 x 1080 frames, scaled to fit the window. */
+  :root { --u: min(calc(100vw / 1920), calc(100vh / 1080)); --grey: rgb(160, 160, 160); --move: 480ms; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; overflow: hidden; background: #000; color: #fff; overscroll-behavior: none; }
+  body { font: 400 calc(var(--u) * 24) / calc(var(--u) * 30) Arial, Helvetica, sans-serif; -webkit-font-smoothing: antialiased; user-select: none; -webkit-user-select: none; }
+  a { color: inherit; text-decoration: none; }
+  i { font-style: italic; }
+
+  /* Pages: the landing page and every work are full-window layers that move vertically. */
+  .page { position: fixed; inset: 0; background: #000; overflow: hidden; }
+  .page.enter-down { transform: translateY(100%); }
+  .page.enter-up { transform: translateY(-100%); }
+  .page.moving { transition: transform var(--move) cubic-bezier(.6, 0, .2, 1); }
+  .page.leave-down { transform: translateY(-100%); }
+  .page.leave-up { transform: translateY(100%); }
+
+  /* Landing */
+  #landing .name { position: absolute; left: calc(var(--u) * 24); top: calc(var(--u) * 24); }
+  #landing .m-email { display: none; }
+  #landing .bio { position: absolute; left: calc(var(--u) * 24); top: calc(var(--u) * 107); width: calc(var(--u) * 776); }
+  #landing .bio p + p { margin-top: calc(var(--u) * 30); }
+  #landing .right { position: absolute; left: calc(50% + var(--u) * 62); right: calc(var(--u) * 24); top: calc(var(--u) * 24); }
+  #landing .bar { display: flex; justify-content: space-between; }
+  #landing ol { list-style: none; margin-top: calc(var(--u) * 60); }
+  #landing li { display: flex; cursor: pointer; }
+  #landing li + li { margin-top: calc(var(--u) * 10); }
+  #landing li .no { flex: 0 0 calc(var(--u) * 42); }
+
+  /* Work pages */
+  .stage { position: absolute; left: 50%; top: 50%; width: calc(var(--u) * 1920); height: calc(var(--u) * 1080); transform: translate(-50%, -50%); }
+  .slide { position: absolute; inset: 0; visibility: hidden; }
+  .slide.on { visibility: visible; }
+  .slide img, .slide video { position: absolute; display: block; object-fit: cover; background: #111; }
+  .slide .it { overflow: hidden; }
+  .slide .safari { position: absolute; background: #fff; }
+  .slide .safari .bar { position: absolute; inset: 0 0 auto 0; height: 5.57em; background: rgb(240, 240, 240); }
+  .slide .safari .bar i { position: absolute; top: 1.86em; width: 1.86em; height: 1.86em; border-radius: 50%; background: rgb(255, 94, 87); left: 2em; }
+  .slide .safari .bar i:nth-child(2) { left: 4.57em; background: rgb(255, 189, 51); }
+  .slide .safari .bar i:nth-child(3) { left: 7em; background: rgb(51, 199, 89); }
+  .slide .safari .bar b { position: absolute; left: 30%; width: 40%; top: 1.14em; height: 3.14em; background: #fff; border-radius: 0.5em; }
+  .slide .safari video { left: 0; top: 5.57em; width: 100%; height: calc(100% - 5.57em); }
+  .slide .tocome { position: absolute; inset: 0; display: grid; place-items: center; color: var(--grey); }
+
+  /* Click halves: left = previous slide, right = next slide */
+  #hits { position: fixed; inset: 0; display: none; z-index: 5; }
+  body.work #hits { display: block; }
+  #hits div { position: absolute; top: 0; bottom: 0; width: 50%; }
+  #prev { left: 0; cursor: w-resize; }
+  #next { right: 0; cursor: e-resize; }
+
+  /* Top line of a work page */
+  #projline { position: fixed; z-index: 6; right: calc(var(--u) * 24); top: calc(var(--u) * 24); pointer-events: none; white-space: nowrap; }
+  #nav { position: fixed; z-index: 7; left: calc(var(--u) * 24); top: calc(var(--u) * 24); }
+  #nav { pointer-events: none; }             /* only the label (and the open list) catch the mouse */
+  #label { display: block; width: max-content; cursor: pointer; pointer-events: auto; }
+  #projline, #nav { opacity: 0; visibility: hidden; transition: opacity 200ms linear, visibility 0s linear 200ms; }
+  body.work #projline, body.work #nav { opacity: 1; visibility: visible; transition: opacity 200ms linear 200ms; }
+
+  /* Index inside a work: number + title, 30 px lines, starts 23 px in from the label */
+  #index { list-style: none; padding-left: calc(var(--u) * 23); white-space: pre; opacity: 0; pointer-events: none; transition: opacity 180ms linear; }
+  #index li { color: var(--grey); cursor: pointer; width: max-content; padding-right: calc(var(--u) * 24); }
+  #index li.cur, #index li:hover { color: #fff; }
+  #nav.open #index { opacity: 1; pointer-events: auto; }
+  /* Index preview while scrolling between works: only the current work and its two neighbours, positions unchanged */
+  #nav.preview:not(.open) #index { opacity: 1; }
+  #nav.only-near:not(.open) #index li:not(.near) { visibility: hidden; }
+  /* Moving the mouse onto the preview opens the full index straight away */
+  #nav.preview #index li.near { pointer-events: auto; }
+
+  @media (prefers-reduced-motion: reduce) { :root { --move: 1ms; } }
+  @supports (height: 100dvh) { :root { --u: min(calc(100vw / 1920), calc(100dvh / 1080)); } }
+  body.work { touch-action: none; }
+
+  /* ---------- Small screens (provisional: not designed in Figma yet) ---------- */
+  body.mobile { font-size: 14px; line-height: 19px; }
+  body.mobile #landing { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 14px 16px 56px; }
+  body.mobile #landing .name, body.mobile #landing .bio, body.mobile #landing .right { position: static; width: auto; }
+  body.mobile #landing .bio { margin-top: 38px; }
+  body.mobile #landing .name { display: flex; justify-content: space-between; }
+  body.mobile #landing .m-email { display: inline; user-select: text; -webkit-user-select: text; }
+  body.mobile #landing .bar a { display: none; }
+  body.mobile #landing .bio p + p { margin-top: 15px; }
+  body.mobile #landing .right { margin-top: 60px; }
+  body.mobile #landing ol { margin-top: 20px; max-width: 316px; }
+  body.mobile #landing li + li { margin-top: 5px; }
+  body.mobile #landing li .no { flex-basis: 31px; }
+  body.mobile #landing li br { display: none; }
+  #landing .bar a { user-select: text; -webkit-user-select: text; }
+  body.mobile .stage { left: 0; top: 0; width: 100%; height: 100%; transform: none; }
+  body.mobile #nav { left: 16px; top: 14px; }
+  body.mobile #index { padding-left: 0; }
+  body.mobile #index li { padding: 0 16px 0 0; }
+  body.mobile #projline { left: 16px; right: 16px; top: auto; bottom: 16px; white-space: normal; }
+</style>
+</head>
+<body>
+
+<main id="landing" class="page">
+  <div class="name"><span>Ken Wenrui Zhao</span><a class="m-email" href="mailto:ken.wzhao@gmail.com">ken.wzhao@gmail.com</a></div>
+  <div class="bio">
+    <p>Ken Wenrui Zhao is a graphic designer in New York working across identity, editorial and exhibition graphics for museums and cultural institutions. He currently designs catalogues and exhibition campaigns for arts clients at Digital Counsel.</p>
+    <p>MFA Graphic Design<br>Yale University, USA<br>2022-2024</p>
+    <p>BA Graphic Design<br>Gerrit Rietveld Academie, NL<br>2017-2021</p>
+  </div>
+  <div class="right">
+    <div class="bar"><span>SELECTED WORKS</span><a href="mailto:ken.wzhao@gmail.com">ken.wzhao@gmail.com</a></div>
+    <ol id="home-index"></ol>
+  </div>
+</main>
+
+<div id="hits"><div id="prev" aria-label="Previous slide"></div><div id="next" aria-label="Next slide"></div></div>
+<div id="projline"></div>
+<nav id="nav">
+  <a id="label">SELECTED WORKS</a>
+  <ol id="index"></ol>
+</nav>
+
+<script>
+/* ---------- Content. Positions are the Figma frame coordinates (1920 x 1080). ---------- */
+const A = 'assets/';
+const WORKS = [
+  { no: '01', title: 'Jannis Kounellis', client: 'Fondazione Prada', scope: 'exhibition catalogue', year: '2022', slides: [
+    [ { img: '01-cover.jpg', x: 178, y: 216, w: 488, h: 649 }, { img: '01-spread-1.jpg', x: 759, y: 216, w: 1002, h: 649 } ],
+    [ { img: '01-spread-2.jpg', x: 54, y: 151, w: 1071, h: 733 }, { img: '01-spread-3.jpg', x: 1159, y: 151, w: 689, h: 460 } ],
+  ] },
+  { no: '02', title: 'Theodore Roosevelt Presidential Library', client: 'TRPL Foundation', scope: 'signage and wayfinding', year: '2025', slides: [
+    [ { img: '02-opener.jpg', x: 313, y: 108, w: 1295, h: 864 } ],
+    [ { video: '02-signage-1.mp4', poster: '02-signage-1-poster.jpg', x: 347, y: 108, w: 1226, h: 864 } ],
+    [ { img: '02-pylon-1.jpg', x: 284, y: 216, w: 432, h: 648 }, { img: '02-pylon-2.jpg', x: 744, y: 216, w: 432, h: 648 }, { img: '02-pylon-3.jpg', x: 1204, y: 216, w: 432, h: 648 } ],
+    [ { video: '02-signage-2.mp4', poster: '02-signage-2-poster.jpg', x: 347, y: 108, w: 1226, h: 864 } ],
+    [ { img: '02-exhibition.jpg', x: 384, y: 108, w: 1152, h: 864 } ],
+  ] },
+  { no: '03', title: 'Sirens', client: 'EVA Foundation', scope: 'exhibition catalogue', year: '2026', oneLine: true, slides: [
+    [ { img: '03-cover-front.jpg', x: 394, y: 108, w: 559, h: 864 }, { img: '03-cover-back.jpg', x: 968, y: 108, w: 559, h: 864 } ],
+    [ { img: '03-essay-opener.jpg', x: 198, y: 248, w: 754, h: 583 }, { img: '03-index.jpg', x: 967, y: 248, w: 754, h: 583 } ],
+    [ { img: '03-judy-chicago.jpg', x: 198, y: 248, w: 754, h: 583 }, { img: '03-plates.jpg', x: 967, y: 248, w: 754, h: 583 } ],
+  ] },
+  { no: '04', title: 'What a Wonderful World', client: 'Julia Stoschek Foundation', scope: 'exhibition identity and campaign', year: '2026', slides: [
+    [ { img: '04-lockup.jpg', x: 511, y: 216, w: 518, h: 648 }, { img: '04-artist-list.jpg', x: 1044, y: 216, w: 365, h: 648 } ],
+    [ { video: '04-hero-reel.mp4', poster: '04-hero-reel-poster.jpg', x: 23, y: 0, w: 1875, h: 1093 } ],
+    [ { safari: true, video: '04-web-desktop.mp4', poster: '04-web-desktop-poster.jpg', x: 284, y: 216, w: 999, h: 648 },
+      { video: '04-web-mobile.mp4', poster: '04-web-mobile-poster.jpg', x: 1311, y: 216, w: 325, h: 648, radius: 52 } ],
+    [ { img: '04-ig-post.png', x: 620, y: 216, w: 328, h: 654 }, { img: '04-ig-reel.png', x: 978, y: 219, w: 325, h: 648 } ],
+  ] },
+  { no: '05', title: 'Ornament', client: 'Yale University Art Gallery', scope: 'identity and wayfinding', year: '2023', slides: [] },
+  { no: '06', title: 'ICA Pittsburgh', client: 'Institute for Contemporary Art Pittsburgh', scope: 'social identity', year: '2026', slides: [] },
+  { no: '07', title: 'DOOM', client: 'Yale School of Art', scope: 'exhibition identity', year: '2024', slides: [] },
+  { no: '08', title: 'Hyundai Artlab', client: 'Hyundai Motor Company', scope: 'branding and digital commission', year: '2026', slides: [] },
+  { no: '09', title: 'Diving into the Wreck', client: 'Yale School of Art', scope: 'publication', year: '2023', slides: [] },
+  { no: '10', title: 'Dual exhibition identities', client: 'X Museum Beijing', scope: 'exhibition identity', year: '2021', slides: [] },
+  { no: '11', title: 'Foreign Object Debris', client: 'Yngve Holen', scope: 'publication', year: '2021', slides: [] },
+  { no: '12', title: 'Culture of Bathe-ing', client: 'Therme Group', scope: 'campaign', year: '2026', slides: [] },
+  { no: '13', title: 'Rietveld Graduation Show', client: 'Gerrit Rietveld Academie', scope: 'identity', year: '2021', slides: [] },
+];
+WORKS.forEach(w => { if (!w.slides.length) { w.slides = [null]; w.placeholder = true; } });
+
+/* ---------- Build ---------- */
+const $ = s => document.querySelector(s);
+const u = n => `calc(var(--u) * ${n})`;
+const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+const landing = $('#landing'), nav = $('#nav'), indexEl = $('#index'), projline = $('#projline');
+const MOVE = matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 480;
+
+WORKS.forEach((w, i) => {
+  // landing index: number, italic title, client, scope, year
+  const li = el('li', '', `<span class="no">${w.no}</span><span><i>${w.title}</i>, ${w.client}, ${w.oneLine ? '' : '<br>'}${w.scope}, ${w.year}</span>`);
+  li.addEventListener('click', () => goWork(i, 0));
+  $('#home-index').append(li);
+  // index inside a work: number + title
+  const li2 = el('li', '', `${w.no}  ${w.title}`);
+  li2.addEventListener('click', e => { e.stopPropagation(); closeIndex(true); goWork(i, 0); });
+  indexEl.append(li2);
+});
+
+const pages = new Map();          // work number -> page element (built on first visit)
+function buildWork(i) {
+  if (pages.has(i)) return pages.get(i);
+  const w = WORKS[i], page = el('section', 'page'), stage = el('div', 'stage');
+  w.slides.forEach(items => {
+    const s = el('div', 'slide');
+    if (!items) s.append(el('div', 'tocome', 'Slides to come'));
+    else items.forEach(it => {
+      let m;
+      if (it.video) { m = el('video'); m.muted = true; m.loop = true; m.playsInline = true; m.preload = 'metadata'; m.poster = A + it.poster; m.src = A + it.video; }
+      else { m = el('img'); m.alt = ''; m.draggable = false; m.decoding = 'async'; m.src = A + it.img; }
+      if (it.safari) { const win = el('div', 'safari', '<div class="bar"><i></i><i></i><i></i><b></b></div>'); win.append(m); m = win; }
+      m.classList.add('it');
+      s.append(m);
+    });
+    stage.append(s);
+  });
+  page.append(stage); pages.set(i, page); layoutWork(i);
+  return page;
+}
+
+/* ---------- Layout ----------
+   Large screens: every picture sits at its Figma position, scaled with the window.
+   Small screens: the pictures of a slide keep their relative sizes but are refitted to the screen,
+   as designed (side by side) or stacked, whichever shows them larger. */
+const mqMobile = matchMedia('(max-width: 760px), (max-height: 520px)');
+const isMobile = () => document.body.classList.contains('mobile');
+function place(m, x, y, w, h, it) { Object.assign(m.style, { left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px', fontSize: (w / 100) + 'px', borderRadius: it && it.radius ? (it.radius * w / it.w) + 'px' : '' }); }
+function layoutWork(i) {
+  const slides = pages.get(i).querySelectorAll('.slide');
+  WORKS[i].slides.forEach((items, k) => {
+    if (!items) return;
+    const els = slides[k].querySelectorAll('.it');
+    if (!isMobile()) { items.forEach((it, j) => Object.assign(els[j].style, { left: u(it.x), top: u(it.y), width: u(it.w), height: u(it.h), fontSize: u(it.w / 100), borderRadius: it.radius ? u(it.radius) : '' })); return; }
+    const pad = 16, top = 48, bottom = 64, gap = 28;
+    const aw = innerWidth - pad * 2, ah = innerHeight - top - bottom;
+    const x0 = Math.min(...items.map(it => it.x)), y0 = Math.min(...items.map(it => it.y));
+    const bw = Math.max(...items.map(it => it.x + it.w)) - x0, bh = Math.max(...items.map(it => it.y + it.h)) - y0;
+    const sRow = Math.min(aw / bw, ah / bh);
+    const cw = Math.max(...items.map(it => it.w)), ch = items.reduce((a, it) => a + it.h, 0) + gap * (items.length - 1);
+    const sCol = Math.min(aw / cw, ah / ch);
+    if (items.length > 1 && sCol > sRow * 1.2) {
+      let y = top + (ah - ch * sCol) / 2;
+      items.forEach((it, j) => { place(els[j], pad + (aw - it.w * sCol) / 2, y, it.w * sCol, it.h * sCol, it); y += (it.h + gap) * sCol; });
+    } else {
+      const ox = pad + (aw - bw * sRow) / 2, oy = top + (ah - bh * sRow) / 2;
+      items.forEach((it, j) => place(els[j], ox + (it.x - x0) * sRow, oy + (it.y - y0) * sRow, it.w * sRow, it.h * sRow, it));
+    }
+  });
+}
+function layoutAll() { document.body.classList.toggle('mobile', mqMobile.matches); pages.forEach((_, i) => layoutWork(i)); }
+addEventListener('resize', layoutAll);
+mqMobile.addEventListener('change', layoutAll);
+layoutAll();
+
+/* ---------- State and movement ---------- */
+let cur = -1;        // -1 = landing, otherwise the work number
+let slide = 0;
+let busy = false;
+let shown = landing;
+
+function setSlide(i, n) {
+  const slides = pages.get(i).querySelectorAll('.slide');
+  slides.forEach((s, k) => {
+    const on = k === n; s.classList.toggle('on', on);
+    s.querySelectorAll('video').forEach(v => { if (on) { v.currentTime = 0; v.play().catch(() => {}); } else v.pause(); });
+  });
+}
+function chrome() {
+  document.body.classList.toggle('work', cur >= 0);
+  if (cur >= 0) {
+    const w = WORKS[cur];
+    projline.innerHTML = `<i>${w.title}</i>, ${w.scope}, ${w.year}`;
+    [...indexEl.children].forEach((li, k) => { li.classList.toggle('cur', k === cur); li.classList.toggle('near', Math.abs(k - cur) <= 1); });
+  }
+  const hash = cur < 0 ? '' : `#${WORKS[cur].no}-${slide + 1}`;
+  try { history.replaceState(null, '', location.pathname + location.search + hash); } catch (e) {}
+  // warm the next pictures
+  if (cur >= 0) { const nx = WORKS[cur].slides[slide + 1] || (WORKS[cur + 1] || {slides: []}).slides[0]; (nx || []).forEach(it => { new Image().src = A + (it.img || it.poster); }); }
+}
+
+// Move to a page (landing or a work). dir: 'down' = the new page comes from below, 'up' = from above, null = cut.
+function show(target, n, dir) {
+  if (busy) return;
+  const from = shown, to = target < 0 ? landing : buildWork(target);
+  if (target >= 0) { if (!to.isConnected) document.body.insertBefore(to, $('#hits')); setSlide(target, n); }
+  cur = target; slide = n; chrome();
+  if (from === to) return;
+  if (!dir || MOVE === 1) { from.style.display = 'none'; to.style.display = ''; to.className = 'page'; shown = to; stopVideos(from); return; }
+  busy = true;
+  to.style.display = ''; to.className = 'page enter-' + dir;
+  void to.offsetWidth;                       // commit the start position
+  to.className = 'page moving'; from.className = 'page moving leave-' + dir;
+  setTimeout(() => { from.style.display = 'none'; from.className = 'page'; to.className = 'page'; stopVideos(from); shown = to; busy = false; }, MOVE + 30);
+}
+function stopVideos(page) { page.querySelectorAll('video').forEach(v => v.pause()); }
+
+function goWork(i, n) { show(i, n, cur < 0 || i > cur ? 'down' : i < cur ? 'up' : null); }
+function goLanding() { show(-1, 0, 'up'); }
+
+// Click: slides of the current work only. The slides loop: next on the last slide returns to the first,
+// previous on the first slide goes to the last. Clicks never change work; scrolling does.
+function stepSlide(d) {
+  if (cur < 0 || busy) return;
+  const n = WORKS[cur].slides.length;
+  if (n > 1) show(cur, (slide + d + n) % n, null);
+}
+function nextSlide() { stepSlide(1); }
+function prevSlide() { stepSlide(-1); }
+// Scroll: previous / next work.
+function nextWork() { if (busy) return; if (cur < WORKS.length - 1) { show(cur + 1, 0, 'down'); preview(); } }
+function prevWork() { if (busy) return; if (cur > 0) { show(cur - 1, 0, 'up'); preview(); } else if (cur === 0) goLanding(); }
+
+/* ---------- Index: hover to open, short preview on scroll ---------- */
+let previewTimer, nearTimer, closeTimer;
+function preview() {
+  nav.classList.add('preview', 'only-near'); clearTimeout(previewTimer); clearTimeout(nearTimer);
+  previewTimer = setTimeout(() => {
+    nav.classList.remove('preview');                                              // fade out…
+    nearTimer = setTimeout(() => nav.classList.remove('only-near'), 220);         // …then let the full list back in, unseen
+  }, 1500);
+}
+function openIndex() { clearTimeout(closeTimer); nav.classList.add('open'); }
+function closeIndex(now) { clearTimeout(closeTimer); if (now) nav.classList.remove('open'); else closeTimer = setTimeout(() => nav.classList.remove('open'), 160); }
+nav.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') openIndex(); });
+nav.addEventListener('pointerleave', e => { if (e.pointerType !== 'touch') closeIndex(false); });
+$('#label').addEventListener('click', e => {
+  // mouse: back to the landing page. touch (no hover): first tap opens the index, second tap goes home.
+  if (matchMedia('(hover: none)').matches && !nav.classList.contains('open')) { openIndex(); return; }
+  closeIndex(true); goLanding();
+});
+
+/* ---------- Input ---------- */
+// On touch screens a tap outside the open index only closes it.
+const tapCloses = () => { if (nav.classList.contains('open') && matchMedia('(hover: none)').matches) { closeIndex(true); return true; } closeIndex(true); return false; };
+$('#next').addEventListener('click', () => { if (!tapCloses()) nextSlide(); });
+$('#prev').addEventListener('click', () => { if (!tapCloses()) prevSlide(); });
+
+// One work per scroll gesture: act on the first movement, then wait for the wheel to go quiet.
+let wheelLocked = false, wheelQuiet, wheelAt = 0;
+addEventListener('wheel', e => {
+  if (cur < 0 && isMobile()) return;          // small-screen landing page scrolls normally
+  e.preventDefault();
+  const now = Date.now();
+  if (!wheelLocked && Math.abs(e.deltaY) >= 8 && Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+    wheelLocked = true; wheelAt = now;
+    if (e.deltaY > 0) nextWork(); else prevWork();
+  }
+  clearTimeout(wheelQuiet);
+  wheelQuiet = setTimeout(() => { wheelLocked = false; }, Math.max(140, 620 - (now - wheelAt)));
+}, { passive: false });
+
+addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key;
+  if (k === 'ArrowRight' || k === ' ') { e.preventDefault(); cur < 0 ? nextWork() : nextSlide(); }
+  else if (k === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+  else if (k === 'ArrowDown' || k === 'PageDown') { e.preventDefault(); nextWork(); }
+  else if (k === 'ArrowUp' || k === 'PageUp') { e.preventDefault(); prevWork(); }
+  else if (k === 'Escape' || k === 'Home') { if (cur >= 0) goLanding(); }
+});
+
+// Touch: swipe up/down = works, swipe left/right = slides.
+let t0 = null;
+addEventListener('touchstart', e => { const t = e.touches[0]; t0 = { x: t.clientX, y: t.clientY }; }, { passive: true });
+addEventListener('touchend', e => {
+  if (!t0) return; const t = e.changedTouches[0], dx = t.clientX - t0.x, dy = t.clientY - t0.y; t0 = null;
+  if (Math.max(Math.abs(dx), Math.abs(dy)) < 40) return;
+  if (cur < 0 && isMobile()) return;          // small-screen landing page scrolls normally; tap an entry to open it
+  if (Math.abs(dy) > Math.abs(dx)) { dy < 0 ? nextWork() : prevWork(); } else if (cur >= 0) { dx < 0 ? nextSlide() : prevSlide(); }
+}, { passive: true });
+
+/* ---------- Start (a link such as #02-3 opens work 02 on its third slide) ---------- */
+const m = location.hash.match(/^#(\d\d)-(\d+)$/);
+if (m) { const i = WORKS.findIndex(w => w.no === m[1]); if (i >= 0) show(i, Math.min(Math.max(+m[2] - 1, 0), WORKS[i].slides.length - 1), null); }
+</script>
+</body>
+</html>
