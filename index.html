@@ -126,8 +126,10 @@
   #nav.only-near:not(.open) #index li:not(.near) { visibility: hidden; }
   /* Moving the mouse onto the preview opens the full index straight away */
   #nav.preview #index li.near { pointer-events: auto; }
-  /* phones: the preview lines get a taller tap area (same layout); a tap on them opens the full index */
-  body.mobile #nav.preview:not(.open) #index li.near { padding-top: 8px; padding-bottom: 8px; margin-top: -8px; margin-bottom: -8px; position: relative; }
+  /* phones: the preview lines get a taller tap area from an invisible overlay, so the line spacing stays the index's;
+     a tap on them opens the full index */
+  body.mobile #nav.preview:not(.open) #index li.near { position: relative; }
+  body.mobile #nav.preview:not(.open) #index li.near::after { content: ''; position: absolute; left: 0; right: 0; top: -6px; bottom: -6px; }
 
   @media (prefers-reduced-motion: reduce) { :root { --move: 1ms; } }
   @supports (height: 100dvh) { :root { --u: min(calc(100vw / 1920), calc(100dvh / 1080)); } }
@@ -183,24 +185,7 @@
 const A = 'assets/';
 const PGH = [1, 2, 3, 4, 5, 6, 7].map(n => `06-pgh-${n}.jpg`);   // "This Month in Pittsburgh", November: the seven slides of one post
 const WORKS = [
-  { no: '01', title: 'Jannis Kounellis', client: 'Fondazione Prada', scope: 'exhibition catalogue', year: '2022', slides: [
-    [ { img: '01-cover.jpg', x: 178, y: 216, w: 488, h: 649 }, { img: '01-spread-1.jpg', x: 756, y: 216, w: 1002, h: 649 } ],
-    [ { img: '01-spread-2.jpg', x: 54, y: 151, w: 1071, h: 733 }, { img: '01-spread-3.jpg', x: 1159, y: 151, w: 689, h: 460 } ],
-  ] },
-  { no: '02', title: 'Theodore Roosevelt Presidential Library', client: 'TRPL Foundation', scope: 'signage and wayfinding', year: '2025', slides: [
-    [ { img: '02-opener.jpg', x: 313, y: 108, w: 1295, h: 864 } ],
-    // both signage loops at double speed (Ken, red notes on 02-2 and 02-4): every frame kept, 60 fps
-    [ { video: '02-signage-1-2x.mp4', poster: '02-signage-1-poster.jpg', x: 347, y: 108, w: 1226, h: 864 } ],
-    [ { img: '02-pylon-1.jpg', x: 284, y: 216, w: 432, h: 648 }, { img: '02-pylon-2.jpg', x: 744, y: 216, w: 432, h: 648 }, { img: '02-pylon-3.jpg', x: 1204, y: 216, w: 432, h: 648 } ],
-    [ { video: '02-signage-2-2x.mp4', poster: '02-signage-2-poster.jpg', x: 347, y: 108, w: 1226, h: 864 } ],
-    [ { img: '02-exhibition.jpg', x: 384, y: 108, w: 1152, h: 864 } ],
-  ] },
-  { no: '03', title: 'Sirens', client: 'EVA Foundation', scope: 'exhibition catalogue', year: '2026', oneLine: true, slides: [
-    // Ken's re-cut on the Web Outline (2026-11-21): front cover (his slight crop baked in) + Judy Chicago; spread 19 print mock + index
-    [ { img: '03-cover-front-crop.jpg', x: 345, y: 279, w: 385, h: 583 }, { img: '03-judy-chicago.jpg', x: 820, y: 279, w: 754, h: 583 } ],
-    [ { img: '03-spread-19.jpg', x: 192, y: 193, w: 894.6, h: 694.7 }, { img: '03-index.jpg', x: 1104.7, y: 193, w: 621.5, h: 480.3 } ],
-  ] },
-  { no: '04', title: 'What a Wonderful World', client: 'Julia Stoschek Foundation', scope: 'exhibition identity and campaign', year: '2026', slides: [
+  { no: '01', title: 'What a Wonderful World', client: 'Julia Stoschek Foundation', scope: 'exhibition identity and campaign', year: '2026', slides: [
     [ { video: '04-hero-reel.mp4', poster: '04-hero-reel-poster.jpg', x: 23, y: 0, w: 1875, h: 1093 } ],
     [ { img: '04-lockup.jpg', x: 511, y: 216, w: 518, h: 648 }, { img: '04-artist-list.jpg', x: 1044, y: 216, w: 365, h: 648 } ],
     // website: cut from Ken's reference video (same frames and timing, backdrop removed). The desktop screen plays alone until 5.0 s,
@@ -210,11 +195,22 @@ const WORKS = [
     [ { igpost: true, video: '04-ig-post.mp4', poster: '04-ig-post-poster.jpg', x: 620, y: 216, w: 328, h: 654, radius: 52 },
       { igreel: true, video: '04-ig-reel.mp4', poster: '04-ig-reel-poster.jpg', x: 978, y: 219, w: 325, h: 648, radius: 52 } ],
   ] },
-  { no: '05', title: 'Ornament', client: 'Yale University Art Gallery', scope: 'identity and wayfinding', year: '2023', slides: [
-    [ { img: '05-installed.jpg', x: 312, y: 108, w: 1296, h: 864 } ],
-    [ { img: '05-elevation.jpg', x: 192, y: 108, w: 1536, h: 864 } ],
+  { no: '02', title: 'Theodore Roosevelt Presidential Library', client: 'TRPL Foundation', scope: 'signage and wayfinding', year: '2025', slides: [
+    [ { img: '02-opener.jpg', x: 313, y: 108, w: 1295, h: 864 } ],
+    // both signage loops at double speed (Ken, red notes on 02-2 and 02-4): every frame kept, 60 fps
+    [ { video: '02-signage-1-2x.mp4', poster: '02-signage-1-poster.jpg', x: 347, y: 108, w: 1226, h: 864 } ],
+    [ { img: '02-pylon-1.jpg', x: 284, y: 216, w: 432, h: 648 }, { img: '02-pylon-2.jpg', x: 744, y: 216, w: 432, h: 648 }, { img: '02-pylon-3.jpg', x: 1204, y: 216, w: 432, h: 648 } ],
+    [ { video: '02-signage-2-2x.mp4', poster: '02-signage-2-poster.jpg', x: 347, y: 108, w: 1226, h: 864 } ],
+    [ { img: '02-exhibition.jpg', x: 384, y: 108, w: 1152, h: 864 } ],
   ] },
-  { no: '06', title: 'ICA Pittsburgh', client: 'Institute for Contemporary Art Pittsburgh', scope: 'social identity', year: '2026', slides: [
+  { no: '03', title: 'Foreign Object Debris', client: 'Yngve Holen', scope: 'publication', year: '2021', slides: [
+    [ { img: '11-cover.jpg', x: 608, y: 115, w: 703, h: 850 } ],
+    [ { img: '11-spread-text.jpg', x: 0, y: 229, w: 715, h: 842 }, { img: '11-spread-sculpture.jpg', x: 734, y: 238, w: 1180, h: 842 } ],
+    // slides 3-4 restored from Ken's January 2025 deck export (Portfolio_Zhao.pdf pp. 20-21), images from Fod Book Photos and fod_3.png
+    [ { img: '11-spread-yellow.jpg', x: 0, y: 204.5, w: 1062.1, h: 841.7 }, { img: '11-spread-gallery.jpg', x: 1091.5, y: 215.1, w: 828.5, h: 820.5 } ],
+    [ { img: '11-spread-carbon.jpg', x: 0, y: 169.1, w: 1113.8, h: 874.9 }, { img: '11-photo-red.jpg', x: 1137.8, y: 255.6, w: 782.2, h: 755.8 } ],
+  ] },
+  { no: '04', title: 'ICA Pittsburgh', client: 'Institute for Contemporary Art Pittsburgh', scope: 'social identity', year: '2026', slides: [
     [ { video: '06-key-visual.mp4', poster: '06-key-visual-poster.jpg', x: 192, y: 108, w: 1536, h: 864 } ],
     [ { img: '06-oq-1.jpg', x: 216, y: 216, w: 486, h: 648 }, { img: '06-oq-2.jpg', x: 717, y: 216, w: 486, h: 648 }, { img: '06-oq-3.jpg', x: 1218, y: 216, w: 486, h: 648 } ],   // stills (Ken: "those should be still, not video")
     // one carousel post, played as a slideshow: the phone stays put and the seven slides step through it one at a time;
@@ -224,12 +220,7 @@ const WORKS = [
     [ { img: '06-wall-01.jpg', x: 313, y: 108, w: 323.5, h: 431.3 }, { img: '06-wall-02.jpg', x: 636.5, y: 108, w: 323.5, h: 431.3 }, { img: '06-wall-05.jpg', x: 960, y: 108, w: 323.5, h: 431.3 }, { img: '06-wall-03.jpg', x: 1283.5, y: 108, w: 323.5, h: 431.3 },
       { img: '06-wall-12.jpg', x: 313, y: 538.9, w: 323.5, h: 431.3 }, { img: '06-wall-11.jpg', x: 636.5, y: 538.9, w: 323.5, h: 431.3 }, { img: '06-wall-06.jpg', x: 960, y: 538.9, w: 323.5, h: 431.3 }, { img: '06-wall-10.jpg', x: 1283.5, y: 538.9, w: 323.5, h: 431.3 } ],
   ] },
-  // 07, 09, 10, 11, 13: Ken's two live-deck slides each ("directly copy from my original portfolio"), deck positions and crops
-  { no: '07', title: 'DOOM', client: 'Yale School of Art', scope: 'exhibition identity', year: '2024', slides: [
-    [ { img: '07-poster.jpg', x: 297, y: 135, w: 573, h: 810 }, { img: '07-mark.jpg', x: 960, y: 539.4, w: 323.5, h: 405.6 }, { img: '07-handout.jpg', x: 1298.5, y: 539.4, w: 323.5, h: 405.6 } ],
-    [ { img: '07-poster-held.jpg', x: 333, y: 155, w: 514, h: 770 }, { img: '07-poster-wall.jpg', x: 1028, y: 155, w: 514, h: 770 } ],
-  ] },
-  { no: '08', title: 'Hyundai Artlab', client: 'Hyundai Motor Company', scope: 'branding and digital commission', year: '2026', slides: [
+  { no: '05', title: 'Hyundai Artlab', client: 'Hyundai Motor Company', scope: 'branding and digital commission', year: '2026', slides: [
     // four slides, kept minimal (Ken): the "Hyundai Artlab" wordmark from the film outro, alone, filling the window; the light leaks in use,
     // three stories stepping through one phone (story header, centred in the screen, no reply bar) while the matching clean leak fills the window behind;
     // the digital commissions on the site beside a supercut of their social pieces; three other pieces, the ICA 06-2 arrangement:
@@ -243,25 +234,32 @@ const WORKS = [
     [ { video: '08-editorspick.mp4', poster: '08-editorspick-poster.jpg', x: 216, y: 216, w: 486, h: 648 }, { img: '08-aef-opencall.jpg', x: 717, y: 216, w: 486, h: 648 },
       { video: '08-chia-garden.mp4', poster: '08-chia-garden-poster.jpg', x: 1218, y: 216, w: 486, h: 648 } ],
   ] },
-  { no: '09', title: 'Diving into the Wreck', client: 'Yale School of Art', scope: 'publication', year: '2023', slides: [
+  { no: '06', title: 'Sirens', client: 'EVA Foundation', scope: 'exhibition catalogue', year: '2026', oneLine: true, slides: [
+    // Ken's re-cut on the Web Outline (2026-11-21): front cover (his slight crop baked in) + Judy Chicago; spread 19 print mock + index
+    [ { img: '03-cover-front-crop.jpg', x: 345, y: 279, w: 385, h: 583 }, { img: '03-judy-chicago.jpg', x: 820, y: 279, w: 754, h: 583 } ],
+    [ { img: '03-spread-19.jpg', x: 192, y: 193, w: 894.6, h: 694.7 }, { img: '03-index.jpg', x: 1104.7, y: 193, w: 621.5, h: 480.3 } ],
+  ] },
+  // DOOM, Diving into the Wreck, X Museum, Foreign Object Debris, Rietveld: Ken's live-deck slides ("directly copy from my original portfolio"), deck positions and crops
+  { no: '07', title: 'DOOM', client: 'Yale School of Art', scope: 'exhibition identity', year: '2024', slides: [
+    [ { img: '07-poster.jpg', x: 297, y: 135, w: 573, h: 810 }, { img: '07-mark.jpg', x: 960, y: 539.4, w: 323.5, h: 405.6 }, { img: '07-handout.jpg', x: 1298.5, y: 539.4, w: 323.5, h: 405.6 } ],
+    [ { img: '07-poster-held.jpg', x: 333, y: 155, w: 514, h: 770 }, { img: '07-poster-wall.jpg', x: 1028, y: 155, w: 514, h: 770 } ],
+  ] },
+  { no: '08', title: 'Diving into the Wreck', client: 'Yale School of Art', scope: 'publication', year: '2023', slides: [
     // Ken tightened all three to one 468 px band (2026-11-21); slide 3's crops are baked into the -crop files
     [ { img: '09-cover.jpg', x: 463, y: 307.3, w: 321, h: 465.4 }, { img: '09-spread-poem.jpg', x: 842, y: 306, w: 614.3, h: 468 } ],
     // slide 2 restored from Ken's January 2025 deck export (Portfolio_Zhao.pdf p. 3), images from the DIW_Ken scans
     [ { img: '09-spread-plates.jpg', x: 345, y: 306, w: 597, h: 468 }, { img: '09-spread-essay.jpg', x: 957, y: 306, w: 618, h: 468 } ],
     [ { img: '09-spread-photos-crop.jpg', x: 326, y: 306, w: 640.3, h: 468 }, { img: '09-spread-diagram-crop.jpg', x: 978.1, y: 306, w: 616.7, h: 468 } ],
   ] },
-  { no: '10', title: 'Dual exhibition identities', client: 'X Museum Beijing', scope: 'exhibition identity', year: '2021', slides: [
-    [ { img: '10-poster-collection.jpg', x: 325, y: 157, w: 542, h: 766 }, { img: '10-poster-issy-wood.jpg', x: 1053, y: 157, w: 542, h: 766 } ],
-    [ { img: '10-brochures.jpg', x: 0, y: 0, w: 1920, h: 1080 } ],
+  { no: '09', title: 'Ornament', client: 'Yale University Art Gallery', scope: 'identity and wayfinding', year: '2023', slides: [
+    [ { img: '05-installed.jpg', x: 312, y: 108, w: 1296, h: 864 } ],
+    [ { img: '05-elevation.jpg', x: 192, y: 108, w: 1536, h: 864 } ],
   ] },
-  { no: '11', title: 'Foreign Object Debris', client: 'Yngve Holen', scope: 'publication', year: '2021', slides: [
-    [ { img: '11-cover.jpg', x: 608, y: 115, w: 703, h: 850 } ],
-    [ { img: '11-spread-text.jpg', x: 0, y: 229, w: 715, h: 842 }, { img: '11-spread-sculpture.jpg', x: 734, y: 238, w: 1180, h: 842 } ],
-    // slides 3-4 restored from Ken's January 2025 deck export (Portfolio_Zhao.pdf pp. 20-21), images from Fod Book Photos and fod_3.png
-    [ { img: '11-spread-yellow.jpg', x: 0, y: 204.5, w: 1062.1, h: 841.7 }, { img: '11-spread-gallery.jpg', x: 1091.5, y: 215.1, w: 828.5, h: 820.5 } ],
-    [ { img: '11-spread-carbon.jpg', x: 0, y: 169.1, w: 1113.8, h: 874.9 }, { img: '11-photo-red.jpg', x: 1137.8, y: 255.6, w: 782.2, h: 755.8 } ],
+  { no: '10', title: 'Jannis Kounellis', client: 'Fondazione Prada', scope: 'exhibition catalogue', year: '2022', slides: [
+    [ { img: '01-cover.jpg', x: 178, y: 216, w: 488, h: 649 }, { img: '01-spread-1.jpg', x: 756, y: 216, w: 1002, h: 649 } ],
+    [ { img: '01-spread-2.jpg', x: 54, y: 151, w: 1071, h: 733 }, { img: '01-spread-3.jpg', x: 1159, y: 151, w: 689, h: 460 } ],
   ] },
-  { no: '12', title: 'Culture of Bathe-ing', client: 'Therme Group', scope: 'campaign', year: '2026', slides: [
+  { no: '11', title: 'Culture of Bathe-ing', client: 'Therme Group', scope: 'campaign', year: '2026', slides: [
     // only pieces whose files carry KZ: the thermal-glow logo (Ken's dark-ad folder, looped), the wheat-paste triptych,
     // the posters on the street (dusk, night), Ken's two dark ads as stories in the standard phone
     [ { video: '12-thermal-logo.mp4', poster: '12-thermal-logo-poster.jpg', x: 192, y: 108, w: 1536, h: 864 } ],
@@ -269,6 +267,10 @@ const WORKS = [
     [ { img: '12-street-dusk.jpg', x: 198, y: 257.25, w: 754, h: 565.5 }, { img: '12-street-night.jpg', x: 967, y: 257.25, w: 754, h: 565.5 } ],
     [ { phone: true, story: true, video: '12-dark-ad-1.mp4', poster: '12-dark-ad-1-poster.jpg', x: 617, y: 213, w: 328, h: 654, radius: 52.5 },
       { phone: true, story: true, video: '12-dark-ad-2.mp4', poster: '12-dark-ad-2-poster.jpg', x: 975, y: 213, w: 328, h: 654, radius: 52.5 } ],
+  ] },
+  { no: '12', title: 'Dual exhibition identities', client: 'X Museum Beijing', scope: 'exhibition identity', year: '2021', slides: [
+    [ { img: '10-poster-collection.jpg', x: 325, y: 157, w: 542, h: 766 }, { img: '10-poster-issy-wood.jpg', x: 1053, y: 157, w: 542, h: 766 } ],
+    [ { img: '10-brochures.jpg', x: 0, y: 0, w: 1920, h: 1080 } ],
   ] },
   { no: '13', title: 'Rietveld Graduation Show', client: 'Gerrit Rietveld Academie', scope: 'identity', year: '2021', slides: [
     [ { img: '13-poster.jpg', x: 607, y: 73, w: 706, h: 881 } ],
@@ -282,44 +284,44 @@ WORKS.forEach(w => { if (!w.slides.length) { w.slides = [null]; w.placeholder = 
    Items not listed are hidden on phones. bare: no device around it (Ken removed the phone mocks);
    r: corner radius; src: a phone-only file (Ken cropped that picture differently in the phone frame). */
 const PHONE = {
-  '01-1': [[0, 107.8, 173, 174.4, 231.9], [1, 16, 419.9, 358, 231.9]],
-  '01-2': [[0, 16, 215, 358, 245], [1, 79.8, 475, 230.3, 153.8]],
+  '01-1': [[0, 16, 309.7, 358, 208.7]],
+  '01-2': [[1, 94, 243, 201.5, 358.3]],
+  '01-3': [[0, 65, 163, 260, 518, { bare: 1, r: 40, video: '04-web-phone-m.mp4', poster: '04-web-phone-m-poster.jpg' }]],   // the phone stream from 5.0 s (black before that)
+  '01-4': [[1, 45, 123, 300, 598.2]],
   '02-1': [[0, 16, 294.6, 358, 238.9]],
   '02-2': [[0, 16, 287.9, 358, 252.3]],
   '02-3': [[1, 116, 177, 158.1, 237.2], [2, 116, 429.2, 158.1, 237.2]],
   '02-4': [[0, 16, 287.9, 358, 252.3]],
   '02-5': [[0, 16, 279.8, 358, 268.5]],
-  '03-1': [[0, 108, 143, 175, 265], [1, 16, 423, 359, 277]],
-  '03-2': [[0, 16, 186, 358, 278], [1, 80, 479, 230, 178]],
-  '04-1': [[0, 16, 309.7, 358, 208.7]],
-  '04-2': [[1, 94, 243, 201.5, 358.3]],
-  '04-3': [[0, 65, 163, 260, 518, { bare: 1, r: 40, video: '04-web-phone-m.mp4', poster: '04-web-phone-m-poster.jpg' }]],   // the phone stream from 5.0 s (black before that)
-  '04-4': [[1, 45, 123, 300, 598.2]],
-  '05-1': [[0, 16, 294.7, 358, 238.7]],
-  '05-2': [[0, 16, 313.3, 358, 201.4]],
-  '06-1': [[0, 16, 313.3, 358, 201.4]],
-  '06-2': [[1, 106, 177, 177.9, 237.2], [2, 106, 429.2, 177.9, 237.2]],
-  '06-3': [[0, 65, 248, 260, 347, { bare: 1, r: 0 }]],
-  '06-4': [[0, 16, 294.7, 89.5, 119.3], [1, 105.5, 294.7, 89.5, 119.3], [2, 195, 294.7, 89.5, 119.3], [3, 284.5, 294.7, 89.5, 119.3],
+  '03-1': [[0, 16, 197.6, 358, 432.9]],
+  '03-2': [[1, 17, 294, 358, 255.5]],
+  '03-3': [[0, 17, 297, 358, 249, { src: 'm-11-spread-yellow.jpg' }]],
+  '03-4': [[1, 15, 300, 359, 243]],
+  '04-1': [[0, 16, 313.3, 358, 201.4]],
+  '04-2': [[1, 106, 177, 177.9, 237.2], [2, 106, 429.2, 177.9, 237.2]],
+  '04-3': [[0, 65, 248, 260, 347, { bare: 1, r: 0 }]],
+  '04-4': [[0, 16, 294.7, 89.5, 119.3], [1, 105.5, 294.7, 89.5, 119.3], [2, 195, 294.7, 89.5, 119.3], [3, 284.5, 294.7, 89.5, 119.3],
            [4, 16, 413.9, 89.5, 119.3], [5, 105.5, 413.9, 89.5, 119.3], [6, 195, 413.9, 89.5, 119.3], [7, 284.5, 413.9, 89.5, 119.3]],
+  '05-2': [[0, 65, 191, 260, 462, { bare: 1, r: 8.8 }]],
+  '05-3': [[0, 65, 155, 260, 534, { bare: 1, r: 13.2 }]],
+  '05-4': [[0, 65, 248, 260, 347]],
+  '06-1': [[0, 108, 143, 175, 265], [1, 16, 423, 359, 277]],
+  '06-2': [[0, 16, 186, 358, 278], [1, 80, 479, 230, 178]],
   '07-1': [[0, 60, 314, 269, 380], [1, 69, 150, 118, 148], [2, 202, 150, 118, 149]],
   '07-2': [[1, 50, 204, 290, 435]],
-  '08-2': [[0, 65, 191, 260, 462, { bare: 1, r: 8.8 }]],
-  '08-3': [[0, 65, 155, 260, 534, { bare: 1, r: 13.2 }]],
-  '08-4': [[0, 65, 248, 260, 347]],
-  '09-1': [[0, 107.5, 152, 175, 253], [1, 16, 420, 358, 272.7]],
-  '09-2': [[0, 21.9, 192, 346.2, 270.7], [1, 80, 477.7, 230, 174, { src: 'm-09-spread-essay.jpg' }]],
-  '09-3': [[0, 74.8, 190, 239.5, 175], [1, 15, 380.7, 359, 272.5]],
-  '10-1': [[0, 15, 301, 172, 242], [1, 202, 301, 172, 243]],
-  '10-2': [[0, 16, 313.3, 358, 201.4]],
-  '11-1': [[0, 16, 197.6, 358, 432.9]],
-  '11-2': [[1, 17, 294, 358, 255.5]],
-  '11-3': [[0, 17, 297, 358, 249, { src: 'm-11-spread-yellow.jpg' }]],
-  '11-4': [[1, 15, 300, 359, 243]],
-  '12-1': [[0, 16, 313.3, 358, 201.4]],
-  '12-2': [[0, 17, 333, 358, 178.7]],
-  '12-3': [[1, 16, 288, 358, 268.5]],
-  '12-4': [[1, 65, 191, 260, 462, { bare: 1, r: 5.2 }]],
+  '08-1': [[0, 107.5, 152, 175, 253], [1, 16, 420, 358, 272.7]],
+  '08-2': [[0, 21.9, 192, 346.2, 270.7], [1, 80, 477.7, 230, 174, { src: 'm-09-spread-essay.jpg' }]],
+  '08-3': [[0, 74.8, 190, 239.5, 175], [1, 15, 380.7, 359, 272.5]],
+  '09-1': [[0, 16, 294.7, 358, 238.7]],
+  '09-2': [[0, 16, 313.3, 358, 201.4]],
+  '10-1': [[0, 107.8, 173, 174.4, 231.9], [1, 16, 419.9, 358, 231.9]],
+  '10-2': [[0, 16, 215, 358, 245], [1, 79.8, 475, 230.3, 153.8]],
+  '11-1': [[0, 16, 313.3, 358, 201.4]],
+  '11-2': [[0, 17, 333, 358, 178.7]],
+  '11-3': [[1, 16, 288, 358, 268.5]],
+  '11-4': [[1, 65, 191, 260, 462, { bare: 1, r: 5.2 }]],
+  '12-1': [[0, 15, 301, 172, 242], [1, 202, 301, 172, 243]],
+  '12-2': [[0, 16, 313.3, 358, 201.4]],
   '13-1': [[0, 16, 190.6, 358, 446.7]],
   '13-2': [[1, 65, 228, 260, 387]],
 };
