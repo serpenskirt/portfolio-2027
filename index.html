@@ -78,13 +78,9 @@
   .slide .strip { position: absolute; }
   .slide .track { position: absolute; inset: 0; display: flex; transition: transform .45s cubic-bezier(.65, 0, .2, 1); will-change: transform; }
   .slide .track img { position: relative; flex: 0 0 auto; width: var(--cell); height: 100%; }
-  /* story phone: a 9:16 story at the top of the screen, the reply bar under it (1em = 1% of the phone's width) */
+  /* story phone: a 9:16 story centred in the black screen, nothing under it (1em = 1% of the phone's width) */
   .slide .phone.story::before { content: ''; position: absolute; left: 2.9em; top: 2.9em; right: 2.9em; bottom: 2.9em; background: #000; border-radius: 13.1em; }
-  .slide .phone.story video { height: 167.47em; border-radius: 13.1em 13.1em 4em 4em; }
-  .slide .phone.story .reply { position: absolute; left: 7.3em; right: 7.3em; top: 177.3em; height: 12.2em; display: flex; align-items: center; gap: 4.3em; }
-  .slide .phone.story .reply b { flex: 1; align-self: stretch; box-sizing: border-box; border: .45em solid rgba(255, 255, 255, .7); border-radius: 6.1em; display: flex; align-items: center; padding-left: 4.9em; font-weight: normal; }
-  .slide .phone.story .reply b span { font-size: 4.3em; color: rgba(255, 255, 255, .85); white-space: nowrap; }
-  .slide .phone.story .reply svg { width: 7.3em; height: 7.3em; flex: none; }
+  .slide .phone.story video { top: 50%; height: 167.47em; transform: translateY(-50%); border-radius: 3em; }
   /* a 'bg' item fills the whole window behind its slide (the light leak) */
   .page .bg { position: absolute; inset: 0; visibility: hidden; }
   .page .bg.on { visibility: visible; }
@@ -92,6 +88,13 @@
   /* on phones a 'wide' background is shown whole-height-free: enlarged past the sides so its centre (the wordmark) stays large and uncut */
   body.mobile .page .bg.wide video { left: -39%; width: 178%; object-fit: contain; }
   .slide .tocome { position: absolute; inset: 0; display: grid; place-items: center; color: var(--grey); }
+  /* phone frames where Ken removed the device: a 'bare' item shows only its picture or video */
+  body.mobile .slide .phone.bare { background: none; overflow: hidden; }
+  body.mobile .slide .phone.bare::before { display: none; }
+  body.mobile .slide .phone.bare video { left: 0; top: 0; width: 100%; height: 100%; transform: none; border-radius: 0; }
+  body.mobile .slide .igpost.bare { background: none; overflow: hidden; }
+  body.mobile .slide .igpost.bare > :not(.shot) { display: none; }
+  body.mobile .slide .igpost.bare .shot { left: 0; top: 0; }
 
   /* Click halves: left = previous slide, right = next slide */
   #hits { position: fixed; inset: 0; display: none; z-index: 5; }
@@ -179,20 +182,21 @@ const A = 'assets/';
 const PGH = [1, 2, 3, 4, 5, 6, 7].map(n => `06-pgh-${n}.jpg`);   // "This Month in Pittsburgh", November: the seven slides of one post
 const WORKS = [
   { no: '01', title: 'Jannis Kounellis', client: 'Fondazione Prada', scope: 'exhibition catalogue', year: '2022', slides: [
-    [ { img: '01-cover.jpg', x: 178, y: 216, w: 488, h: 649 }, { img: '01-spread-1.jpg', x: 759, y: 216, w: 1002, h: 649 } ],
+    [ { img: '01-cover.jpg', x: 178, y: 216, w: 488, h: 649 }, { img: '01-spread-1.jpg', x: 756, y: 216, w: 1002, h: 649 } ],
     [ { img: '01-spread-2.jpg', x: 54, y: 151, w: 1071, h: 733 }, { img: '01-spread-3.jpg', x: 1159, y: 151, w: 689, h: 460 } ],
   ] },
   { no: '02', title: 'Theodore Roosevelt Presidential Library', client: 'TRPL Foundation', scope: 'signage and wayfinding', year: '2025', slides: [
     [ { img: '02-opener.jpg', x: 313, y: 108, w: 1295, h: 864 } ],
-    [ { video: '02-signage-1.mp4', poster: '02-signage-1-poster.jpg', x: 347, y: 108, w: 1226, h: 864 } ],
+    // both signage loops at double speed (Ken, red notes on 02-2 and 02-4): every frame kept, 60 fps
+    [ { video: '02-signage-1-2x.mp4', poster: '02-signage-1-poster.jpg', x: 347, y: 108, w: 1226, h: 864 } ],
     [ { img: '02-pylon-1.jpg', x: 284, y: 216, w: 432, h: 648 }, { img: '02-pylon-2.jpg', x: 744, y: 216, w: 432, h: 648 }, { img: '02-pylon-3.jpg', x: 1204, y: 216, w: 432, h: 648 } ],
-    [ { video: '02-signage-2.mp4', poster: '02-signage-2-poster.jpg', x: 347, y: 108, w: 1226, h: 864 } ],
+    [ { video: '02-signage-2-2x.mp4', poster: '02-signage-2-poster.jpg', x: 347, y: 108, w: 1226, h: 864 } ],
     [ { img: '02-exhibition.jpg', x: 384, y: 108, w: 1152, h: 864 } ],
   ] },
   { no: '03', title: 'Sirens', client: 'EVA Foundation', scope: 'exhibition catalogue', year: '2026', oneLine: true, slides: [
-    [ { img: '03-cover-back.jpg', x: 515, y: 205, w: 437, h: 669 }, { img: '03-cover-front.jpg', x: 964, y: 205, w: 441, h: 669 } ],
-    [ { img: '03-judy-chicago.jpg', x: 198, y: 248, w: 754, h: 583 }, { img: '03-index.jpg', x: 967, y: 248, w: 754, h: 583 } ],
-    [ { img: '03-spread-19.jpg', x: 583, y: 248, w: 754, h: 583 } ],
+    // Ken's re-cut on the Web Outline (2026-11-21): front cover (his slight crop baked in) + Judy Chicago; spread 19 print mock + index
+    [ { img: '03-cover-front-crop.jpg', x: 345, y: 279, w: 385, h: 583 }, { img: '03-judy-chicago.jpg', x: 820, y: 279, w: 754, h: 583 } ],
+    [ { img: '03-spread-19.jpg', x: 192, y: 193, w: 894.6, h: 694.7 }, { img: '03-index.jpg', x: 1104.7, y: 193, w: 621.5, h: 480.3 } ],
   ] },
   { no: '04', title: 'What a Wonderful World', client: 'Julia Stoschek Foundation', scope: 'exhibition identity and campaign', year: '2026', slides: [
     [ { video: '04-hero-reel.mp4', poster: '04-hero-reel-poster.jpg', x: 23, y: 0, w: 1875, h: 1093 } ],
@@ -218,27 +222,105 @@ const WORKS = [
     [ { img: '06-wall-01.jpg', x: 313, y: 108, w: 323.5, h: 431.3 }, { img: '06-wall-02.jpg', x: 636.5, y: 108, w: 323.5, h: 431.3 }, { img: '06-wall-05.jpg', x: 960, y: 108, w: 323.5, h: 431.3 }, { img: '06-wall-03.jpg', x: 1283.5, y: 108, w: 323.5, h: 431.3 },
       { img: '06-wall-12.jpg', x: 313, y: 538.9, w: 323.5, h: 431.3 }, { img: '06-wall-11.jpg', x: 636.5, y: 538.9, w: 323.5, h: 431.3 }, { img: '06-wall-06.jpg', x: 960, y: 538.9, w: 323.5, h: 431.3 }, { img: '06-wall-10.jpg', x: 1283.5, y: 538.9, w: 323.5, h: 431.3 } ],
   ] },
-  { no: '07', title: 'DOOM', client: 'Yale School of Art', scope: 'exhibition identity', year: '2024', slides: [] },
+  // 07, 09, 10, 11, 13: Ken's two live-deck slides each ("directly copy from my original portfolio"), deck positions and crops
+  { no: '07', title: 'DOOM', client: 'Yale School of Art', scope: 'exhibition identity', year: '2024', slides: [
+    [ { img: '07-poster.jpg', x: 297, y: 135, w: 573, h: 810 }, { img: '07-mark.jpg', x: 960, y: 539.4, w: 323.5, h: 405.6 }, { img: '07-handout.jpg', x: 1298.5, y: 539.4, w: 323.5, h: 405.6 } ],
+    [ { img: '07-poster-held.jpg', x: 333, y: 155, w: 514, h: 770 }, { img: '07-poster-wall.jpg', x: 1028, y: 155, w: 514, h: 770 } ],
+  ] },
   { no: '08', title: 'Hyundai Artlab', client: 'Hyundai Motor Company', scope: 'branding and digital commission', year: '2026', slides: [
     // four slides, kept minimal (Ken): the "Hyundai Artlab" wordmark from the film outro, alone, filling the window; the light leaks in use,
-    // three stories stepping through one phone (story header and reply bar) while the matching clean leak fills the window behind;
+    // three stories stepping through one phone (story header, centred in the screen, no reply bar) while the matching clean leak fills the window behind;
     // the digital commissions on the site beside a supercut of their social pieces; three other pieces, the ICA 06-2 arrangement:
-    // the Editor's Pick template (title sliding to quote), World Art Day, a Tate programme poster. Phones are the 328 x 654 phone of the other works.
+    // the Editor's Pick template (title sliding to quote), the Editorial Fellowship open-call illustration with its lettering removed (Ken's pick),
+    // Chia's digital-garden story. Phones are the 328 x 654 phone of the other works.
     [ { bg: true, wide: true, video: '08-wordmark.mp4', poster: '08-wordmark-poster.jpg', x: 0, y: 0, w: 1920, h: 1080 } ],
     [ { bg: true, video: '08-leak.mp4', poster: '08-leak-poster.jpg', x: 0, y: 0, w: 1920, h: 1080 },
       { phone: true, story: true, video: '08-stories.mp4', poster: '08-stories-poster.jpg', x: 796, y: 213, w: 328, h: 654, radius: 52.5 } ],
     [ { phone: true, video: '08-commission-phone.mp4', poster: '08-commission-phone-poster.jpg', x: 192, y: 213, w: 328, h: 654, radius: 52.5 },
       { video: '08-commission-site.mp4', poster: '08-commission-site-poster.jpg', x: 565.3, y: 213, w: 1162.7, h: 654 } ],
-    [ { video: '08-editorspick.mp4', poster: '08-editorspick-poster.jpg', x: 216, y: 216, w: 486, h: 648 }, { video: '08-worldartday.mp4', poster: '08-worldartday-poster.jpg', x: 717, y: 216, w: 486, h: 648 },
-      { video: '08-htrc.mp4', poster: '08-htrc-poster.jpg', x: 1218, y: 216, w: 486, h: 648 } ],
+    [ { video: '08-editorspick.mp4', poster: '08-editorspick-poster.jpg', x: 216, y: 216, w: 486, h: 648 }, { img: '08-aef-opencall.jpg', x: 717, y: 216, w: 486, h: 648 },
+      { video: '08-chia-garden.mp4', poster: '08-chia-garden-poster.jpg', x: 1218, y: 216, w: 486, h: 648 } ],
   ] },
-  { no: '09', title: 'Diving into the Wreck', client: 'Yale School of Art', scope: 'publication', year: '2023', slides: [] },
-  { no: '10', title: 'Dual exhibition identities', client: 'X Museum Beijing', scope: 'exhibition identity', year: '2021', slides: [] },
-  { no: '11', title: 'Foreign Object Debris', client: 'Yngve Holen', scope: 'publication', year: '2021', slides: [] },
-  { no: '12', title: 'Culture of Bathe-ing', client: 'Therme Group', scope: 'campaign', year: '2026', slides: [] },
-  { no: '13', title: 'Rietveld Graduation Show', client: 'Gerrit Rietveld Academie', scope: 'identity', year: '2021', slides: [] },
+  { no: '09', title: 'Diving into the Wreck', client: 'Yale School of Art', scope: 'publication', year: '2023', slides: [
+    // Ken tightened all three to one 468 px band (2026-11-21); slide 3's crops are baked into the -crop files
+    [ { img: '09-cover.jpg', x: 463, y: 307.3, w: 321, h: 465.4 }, { img: '09-spread-poem.jpg', x: 842, y: 306, w: 614.3, h: 468 } ],
+    // slide 2 restored from Ken's January 2025 deck export (Portfolio_Zhao.pdf p. 3), images from the DIW_Ken scans
+    [ { img: '09-spread-plates.jpg', x: 345, y: 306, w: 597, h: 468 }, { img: '09-spread-essay.jpg', x: 957, y: 306, w: 618, h: 468 } ],
+    [ { img: '09-spread-photos-crop.jpg', x: 326, y: 306, w: 640.3, h: 468 }, { img: '09-spread-diagram-crop.jpg', x: 978.1, y: 306, w: 616.7, h: 468 } ],
+  ] },
+  { no: '10', title: 'Dual exhibition identities', client: 'X Museum Beijing', scope: 'exhibition identity', year: '2021', slides: [
+    [ { img: '10-poster-collection.jpg', x: 325, y: 157, w: 542, h: 766 }, { img: '10-poster-issy-wood.jpg', x: 1053, y: 157, w: 542, h: 766 } ],
+    [ { img: '10-brochures.jpg', x: 0, y: 0, w: 1920, h: 1080 } ],
+  ] },
+  { no: '11', title: 'Foreign Object Debris', client: 'Yngve Holen', scope: 'publication', year: '2021', slides: [
+    [ { img: '11-cover.jpg', x: 608, y: 115, w: 703, h: 850 } ],
+    [ { img: '11-spread-text.jpg', x: 0, y: 229, w: 715, h: 842 }, { img: '11-spread-sculpture.jpg', x: 734, y: 238, w: 1180, h: 842 } ],
+    // slides 3-4 restored from Ken's January 2025 deck export (Portfolio_Zhao.pdf pp. 20-21), images from Fod Book Photos and fod_3.png
+    [ { img: '11-spread-yellow.jpg', x: 0, y: 204.5, w: 1062.1, h: 841.7 }, { img: '11-spread-gallery.jpg', x: 1091.5, y: 215.1, w: 828.5, h: 820.5 } ],
+    [ { img: '11-spread-carbon.jpg', x: 0, y: 169.1, w: 1113.8, h: 874.9 }, { img: '11-photo-red.jpg', x: 1137.8, y: 255.6, w: 782.2, h: 755.8 } ],
+  ] },
+  { no: '12', title: 'Culture of Bathe-ing', client: 'Therme Group', scope: 'campaign', year: '2026', slides: [
+    // only pieces whose files carry KZ: the thermal-glow logo (Ken's dark-ad folder, looped), the wheat-paste triptych,
+    // the posters on the street (dusk, night), Ken's two dark ads as stories in the standard phone
+    [ { video: '12-thermal-logo.mp4', poster: '12-thermal-logo-poster.jpg', x: 192, y: 108, w: 1536, h: 864 } ],
+    [ { img: '12-triptych.jpg', x: 192, y: 156.65, w: 1536, h: 766.7 } ],
+    [ { img: '12-street-dusk.jpg', x: 198, y: 257.25, w: 754, h: 565.5 }, { img: '12-street-night.jpg', x: 967, y: 257.25, w: 754, h: 565.5 } ],
+    [ { phone: true, story: true, video: '12-dark-ad-1.mp4', poster: '12-dark-ad-1-poster.jpg', x: 617, y: 213, w: 328, h: 654, radius: 52.5 },
+      { phone: true, story: true, video: '12-dark-ad-2.mp4', poster: '12-dark-ad-2-poster.jpg', x: 975, y: 213, w: 328, h: 654, radius: 52.5 } ],
+  ] },
+  { no: '13', title: 'Rietveld Graduation Show', client: 'Gerrit Rietveld Academie', scope: 'identity', year: '2021', slides: [
+    [ { img: '13-poster.jpg', x: 607, y: 73, w: 706, h: 881 } ],
+    [ { img: '13-poster-column.jpg', x: 259, y: 77, w: 622, h: 926 }, { img: '13-flags.jpg', x: 1039, y: 77, w: 622, h: 926 } ],
+  ] },
 ];
 WORKS.forEach(w => { if (!w.slides.length) { w.slides = [null]; w.placeholder = true; } });
+
+/* Phone layouts, copied from Ken's 390 x 844 'M · NN-k' frames on the Web Outline (2026-11-21).
+   Each entry: [item number on the desktop slide (bg items not counted), x, y, w, h, options].
+   Items not listed are hidden on phones. bare: no device around it (Ken removed the phone mocks);
+   r: corner radius; src: a phone-only file (Ken cropped that picture differently in the phone frame). */
+const PHONE = {
+  '01-1': [[0, 107.8, 173, 174.4, 231.9], [1, 16, 419.9, 358, 231.9]],
+  '01-2': [[0, 16, 215, 358, 245], [1, 79.8, 475, 230.3, 153.8]],
+  '02-1': [[0, 16, 294.6, 358, 238.9]],
+  '02-2': [[0, 16, 287.9, 358, 252.3]],
+  '02-3': [[1, 116, 177, 158.1, 237.2], [2, 116, 429.2, 158.1, 237.2]],
+  '02-4': [[0, 16, 287.9, 358, 252.3]],
+  '02-5': [[0, 16, 279.8, 358, 268.5]],
+  '03-1': [[0, 108, 143, 175, 265], [1, 16, 423, 359, 277]],
+  '03-2': [[0, 16, 186, 358, 278], [1, 80, 479, 230, 178]],
+  '04-1': [[0, 16, 309.7, 358, 208.7]],
+  '04-2': [[1, 94, 243, 201.5, 358.3]],
+  '04-3': [[0, 65, 163, 260, 518, { bare: 1, r: 40, video: '04-web-phone-m.mp4', poster: '04-web-phone-m-poster.jpg' }]],   // the phone stream from 5.0 s (black before that)
+  '04-4': [[1, 45, 123, 300, 598.2]],
+  '05-1': [[0, 16, 294.7, 358, 238.7]],
+  '05-2': [[0, 16, 313.3, 358, 201.4]],
+  '06-1': [[0, 16, 313.3, 358, 201.4]],
+  '06-2': [[1, 106, 177, 177.9, 237.2], [2, 106, 429.2, 177.9, 237.2]],
+  '06-3': [[0, 65, 248, 260, 347, { bare: 1, r: 0 }]],
+  '06-4': [[0, 16, 294.7, 89.5, 119.3], [1, 105.5, 294.7, 89.5, 119.3], [2, 195, 294.7, 89.5, 119.3], [3, 284.5, 294.7, 89.5, 119.3],
+           [4, 16, 413.9, 89.5, 119.3], [5, 105.5, 413.9, 89.5, 119.3], [6, 195, 413.9, 89.5, 119.3], [7, 284.5, 413.9, 89.5, 119.3]],
+  '07-1': [[0, 60, 314, 269, 380], [1, 69, 150, 118, 148], [2, 202, 150, 118, 149]],
+  '07-2': [[1, 50, 204, 290, 435]],
+  '08-2': [[0, 65, 191, 260, 462, { bare: 1, r: 8.8 }]],
+  '08-3': [[0, 65, 155, 260, 534, { bare: 1, r: 13.2 }]],
+  '08-4': [[0, 65, 248, 260, 347]],
+  '09-1': [[0, 107.5, 152, 175, 253], [1, 16, 420, 358, 272.7]],
+  '09-2': [[0, 21.9, 192, 346.2, 270.7], [1, 80, 477.7, 230, 174, { src: 'm-09-spread-essay.jpg' }]],
+  '09-3': [[0, 74.8, 190, 239.5, 175], [1, 15, 380.7, 359, 272.5]],
+  '10-1': [[0, 15, 301, 172, 242], [1, 202, 301, 172, 243]],
+  '10-2': [[0, 16, 313.3, 358, 201.4]],
+  '11-1': [[0, 16, 197.6, 358, 432.9]],
+  '11-2': [[1, 17, 294, 358, 255.5]],
+  '11-3': [[0, 17, 297, 358, 249, { src: 'm-11-spread-yellow.jpg' }]],
+  '11-4': [[1, 15, 300, 359, 243]],
+  '12-1': [[0, 16, 313.3, 358, 201.4]],
+  '12-2': [[0, 17, 333, 358, 178.7]],
+  '12-3': [[1, 16, 288, 358, 268.5]],
+  '12-4': [[1, 65, 191, 260, 462, { bare: 1, r: 5.2 }]],
+  '13-1': [[0, 16, 190.6, 358, 446.7]],
+  '13-2': [[1, 65, 228, 260, 387]],
+};
 
 /* ---------- Build ---------- */
 const $ = s => document.querySelector(s);
@@ -260,7 +342,6 @@ WORKS.forEach((w, i) => {
 
 const IGPOST = '<div class="band"></div><i class="av"></i><span class="acct">juliastoschekfoundation</span><div class="shot"></div><svg class="icons" viewBox="0 0 291 30"><g fill="none" stroke="#EFEDE1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7.50024C12.7507 4.87896 8.99221 4.06888 6.17404 6.46918C3.35585 8.86948 2.95909 12.8826 5.17222 15.7215C7.0123 18.0817 12.581 23.0599 14.4061 24.6711C14.6102 24.8514 14.7124 24.9415 14.8315 24.9769C14.9354 25.0078 15.0491 25.0078 15.1531 24.9769C15.2722 24.9415 15.3742 24.8514 15.5785 24.6711C17.4036 23.0599 22.9722 18.0817 24.8124 15.7215C27.0255 12.8826 26.6771 8.84423 23.8105 6.46918C20.9439 4.09413 17.2492 4.87896 15 7.50024Z"/><path d="M57.2056 25.6538C51.3216 25.6538 46.5518 20.884 46.5518 15C46.5518 9.11607 51.3216 4.34619 57.2056 4.34619C63.0895 4.34619 67.8594 9.11607 67.8594 15C67.8594 16.761 67.4321 18.4222 66.6756 19.8856L67.8594 25.6538L62.0912 24.4701C60.6278 25.2266 58.9665 25.6538 57.2056 25.6538Z"/><path d="M93.4155 16.4944L99.1365 10.7733M104.989 7.28187L100.16 22.9767C99.727 24.3832 99.5103 25.0868 99.1371 25.3201C98.8134 25.5223 98.4124 25.5562 98.0598 25.4098C97.6532 25.2411 97.3233 24.5823 96.6649 23.2656L93.6062 17.1482C93.5017 16.9392 93.4494 16.8352 93.3797 16.7446C93.3177 16.6644 93.2463 16.5919 93.166 16.53C93.0775 16.4618 92.9752 16.4107 92.7756 16.3109L86.644 13.2451C85.3274 12.5868 84.669 12.2573 84.5003 11.8507C84.3539 11.4981 84.3873 11.0969 84.5896 10.7731C84.8229 10.3998 85.5264 10.1829 86.9334 9.74997L102.628 4.92079C103.734 4.58046 104.288 4.41042 104.661 4.54758C104.987 4.66705 105.243 4.92336 105.363 5.2488C105.5 5.62222 105.33 6.17522 104.99 7.28025L104.989 7.28187Z"/><path d="M290 23.4786V10.1524C290 7.58171 288.088 5.36904 285.433 4.86775C282.836 4.37742 280.164 4.37742 277.567 4.86775C274.912 5.36904 273 7.58171 273 10.1524V23.4786C273 25.0378 274.782 26.0081 276.199 25.2205L280.068 23.0685C280.953 22.5769 282.047 22.5769 282.932 23.0685L286.801 25.2205C288.218 26.0081 290 25.0378 290 23.4786Z"/></g></svg>';
 const IGREEL = '<svg class="icons" viewBox="0 0 30 130"><g fill="none" stroke="#EFEDE1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7.50024C12.7507 4.87896 8.99221 4.06888 6.17404 6.46918C3.35585 8.86948 2.95909 12.8826 5.17222 15.7215C7.0123 18.0817 12.581 23.0599 14.4061 24.6711C14.6102 24.8514 14.7124 24.9415 14.8315 24.9769C14.9354 25.0078 15.0491 25.0078 15.1531 24.9769C15.2722 24.9415 15.3742 24.8514 15.5785 24.6711C17.4036 23.0599 22.9722 18.0817 24.8124 15.7215C27.0255 12.8826 26.6771 8.84423 23.8105 6.46918C20.9439 4.09413 17.2492 4.87896 15 7.50024Z"/><path transform="translate(-42.3 53.6)" d="M57.2056 25.6538C51.3216 25.6538 46.5518 20.884 46.5518 15C46.5518 9.11607 51.3216 4.34619 57.2056 4.34619C63.0895 4.34619 67.8594 9.11607 67.8594 15C67.8594 16.761 67.4321 18.4222 66.6756 19.8856L67.8594 25.6538L62.0912 24.4701C60.6278 25.2266 58.9665 25.6538 57.2056 25.6538Z"/><path transform="translate(-79.6 102.9)" d="M93.4155 16.4944L99.1365 10.7733M104.989 7.28187L100.16 22.9767C99.727 24.3832 99.5103 25.0868 99.1371 25.3201C98.8134 25.5223 98.4124 25.5562 98.0598 25.4098C97.6532 25.2411 97.3233 24.5823 96.6649 23.2656L93.6062 17.1482C93.5017 16.9392 93.4494 16.8352 93.3797 16.7446C93.3177 16.6644 93.2463 16.5919 93.166 16.53C93.0775 16.4618 92.9752 16.4107 92.7756 16.3109L86.644 13.2451C85.3274 12.5868 84.669 12.2573 84.5003 11.8507C84.3539 11.4981 84.3873 11.0969 84.5896 10.7731C84.8229 10.3998 85.5264 10.1829 86.9334 9.74997L102.628 4.92079C103.734 4.58046 104.288 4.41042 104.661 4.54758C104.987 4.66705 105.243 4.92336 105.363 5.2488C105.5 5.62222 105.33 6.17522 104.99 7.28025L104.989 7.28187Z"/></g></svg><i class="av"></i><span class="acct">juliastoschekfoundation</span>';
-const STORYBAR = '<div class="reply"><b><span>Send message</span></b><svg viewBox="0 0 30 30"><path fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 7.50024C12.7507 4.87896 8.99221 4.06888 6.17404 6.46918C3.35585 8.86948 2.95909 12.8826 5.17222 15.7215C7.0123 18.0817 12.581 23.0599 14.4061 24.6711C14.6102 24.8514 14.7124 24.9415 14.8315 24.9769C14.9354 25.0078 15.0491 25.0078 15.1531 24.9769C15.2722 24.9415 15.3742 24.8514 15.5785 24.6711C17.4036 23.0599 22.9722 18.0817 24.8124 15.7215C27.0255 12.8826 26.6771 8.84423 23.8105 6.46918C20.9439 4.09413 17.2492 4.87896 15 7.50024Z"/></svg><svg viewBox="80 0 30 30"><path fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M93.4155 16.4944L99.1365 10.7733M104.989 7.28187L100.16 22.9767C99.727 24.3832 99.5103 25.0868 99.1371 25.3201C98.8134 25.5223 98.4124 25.5562 98.0598 25.4098C97.6532 25.2411 97.3233 24.5823 96.6649 23.2656L93.6062 17.1482C93.5017 16.9392 93.4494 16.8352 93.3797 16.7446C93.3177 16.6644 93.2463 16.5919 93.166 16.53C93.0775 16.4618 92.9752 16.4107 92.7756 16.3109L86.644 13.2451C85.3274 12.5868 84.669 12.2573 84.5003 11.8507C84.3539 11.4981 84.3873 11.0969 84.5896 10.7731C84.8229 10.3998 85.5264 10.1829 86.9334 9.74997L102.628 4.92079C103.734 4.58046 104.288 4.41042 104.661 4.54758C104.987 4.66705 105.243 4.92336 105.363 5.2488C105.5 5.62222 105.33 6.17522 104.99 7.28025L104.989 7.28187Z"/></svg></div>';
 const pages = new Map();          // work number -> page element (built on first visit)
 function buildWork(i) {
   if (pages.has(i)) return pages.get(i);
@@ -282,15 +363,17 @@ function buildWork(i) {
       else if (it.video) { m = el('video'); m.muted = true; m.loop = true; m.playsInline = true; m.preload = 'metadata'; m.poster = A + it.poster; m.src = A + it.video; }
       else { m = el('img'); m.alt = ''; m.draggable = false; m.decoding = 'async'; m.src = A + it.img; }
       if (it.safari) { const win = el('div', 'safari', '<div class="bar"><i></i><i></i><i></i><b></b></div>'); win.append(m); m = win; }
-      if (it.phone) { const d = el('div', 'phone' + (it.story ? ' story' : '')); d.append(m); if (it.story) d.insertAdjacentHTML('beforeend', STORYBAR); m = d; }
+      if (it.phone) { const d = el('div', 'phone' + (it.story ? ' story' : '')); d.append(m); m = d; }
       if (it.igpost) { const d = el('div', 'igpost' + (it.p34 ? ' p34' : ''), it.acct ? IGPOST.replace('juliastoschekfoundation', it.acct) : IGPOST); d.querySelector('.shot').append(m); m = d; }
       if (it.igreel) { const d = el('div', 'igreel', IGREEL); d.prepend(m); m = d; }
       // an item with 'intro' starts large and eases to its place when its video reaches 'until' seconds; 'after' items appear then
       if (it.intro) { m.classList.add('zoom'); m.style.setProperty('--intro', `translate(${u(it.intro.x - it.x)}, ${u(it.intro.y - it.y)}) scale(${it.intro.w / it.w})`);
         const v = m.tagName === 'VIDEO' ? m : m.querySelector('video'); s.classList.add('intro-on');
-        const tick = () => { if (s.classList.contains('on')) { s.classList.toggle('intro-on', v.currentTime < it.intro.until);
+        const tick = () => { if (s.classList.contains('on') && !isMobile()) { s.classList.toggle('intro-on', v.currentTime < it.intro.until);
             s.querySelectorAll('.after video, video.after').forEach(o => { if (Math.abs(o.currentTime - v.currentTime) > 0.12) o.currentTime = v.currentTime; }); }   // keep the phone in step with the desktop
-          requestAnimationFrame(tick); v.addEventListener('timeupdate', () => { if (s.classList.contains('on')) s.classList.toggle('intro-on', v.currentTime < it.intro.until); }); };
+          requestAnimationFrame(tick); };
+        // added once (it used to be added on every frame, piling up listeners)
+        v.addEventListener('timeupdate', () => { if (s.classList.contains('on') && !isMobile()) s.classList.toggle('intro-on', v.currentTime < it.intro.until); });
         requestAnimationFrame(tick); }
       if (it.after) m.classList.add('after');
       m.classList.add('it');
@@ -326,7 +409,24 @@ function layoutWork(i) {
     if (!items.length) return;
     let els = [...slides[k].querySelectorAll('.it')];
     els.forEach((e, j) => { e.style.display = items[j].desktopOnly && isMobile() ? 'none' : ''; });
-    if (!isMobile()) { items.forEach((it, j) => Object.assign(els[j].style, { left: u(it.x), top: u(it.y), width: u(it.w), height: u(it.h), fontSize: u(it.w / 100), borderRadius: it.radius ? u(it.radius) : '' })); return; }
+    if (!isMobile()) { items.forEach((it, j) => { const e = els[j]; e.classList.remove('bare'); if (e.dataset.d) e.src = e.dataset.d;
+      const v = e.tagName === 'VIDEO' ? e : e.querySelector('video'); if (v && v.dataset.d && v.src !== v.dataset.d) { v.poster = v.dataset.p; v.src = v.dataset.d; }
+      Object.assign(e.style, { left: u(it.x), top: u(it.y), width: u(it.w), height: u(it.h), fontSize: u(it.w / 100), borderRadius: it.radius ? u(it.radius) : '' }); }); return; }
+    const spec = PHONE[`${WORKS[i].no}-${k + 1}`];
+    if (spec) {          // Ken's phone frame: his 390 x 844 positions, scaled to fit the screen and centred
+      const s = Math.min(innerWidth / 390, innerHeight / 844), ox = (innerWidth - 390 * s) / 2, oy = (innerHeight - 844 * s) / 2;
+      els.forEach(e => { e.style.display = 'none'; });
+      spec.forEach(([j, x, y, w, h, o = {}]) => {
+        const e = els[j], it = items[j]; if (!e) return;
+        e.style.display = ''; e.classList.toggle('bare', !!o.bare);
+        place(e, ox + x * s, oy + y * s, w * s, h * s, null);
+        e.style.borderRadius = o.r != null ? (o.r * s) + 'px' : it.radius ? (it.radius * w * s / it.w) + 'px' : '';
+        if (e.tagName === 'IMG') { if (!e.dataset.d) e.dataset.d = e.src; e.src = o.src ? A + o.src : e.dataset.d; }
+        const v = e.tagName === 'VIDEO' ? e : e.querySelector('video');
+        if (v && o.video) { if (!v.dataset.d) { v.dataset.d = v.src; v.dataset.p = v.poster; } if (!v.src.endsWith(o.video)) { v.poster = A + o.poster; v.src = A + o.video; } }
+      });
+      return;
+    }
     els = els.filter((e, j) => !items[j].desktopOnly); items = items.filter(it => !it.desktopOnly);
     const pad = 16, top = 48, bottom = 64, gap = 28;
     const aw = innerWidth - pad * 2, ah = innerHeight - top - bottom;
