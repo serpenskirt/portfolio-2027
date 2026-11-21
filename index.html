@@ -126,6 +126,8 @@
   #nav.only-near:not(.open) #index li:not(.near) { visibility: hidden; }
   /* Moving the mouse onto the preview opens the full index straight away */
   #nav.preview #index li.near { pointer-events: auto; }
+  /* phones: the preview lines get a taller tap area (same layout); a tap on them opens the full index */
+  body.mobile #nav.preview:not(.open) #index li.near { padding-top: 8px; padding-bottom: 8px; margin-top: -8px; margin-bottom: -8px; position: relative; }
 
   @media (prefers-reduced-motion: reduce) { :root { --move: 1ms; } }
   @supports (height: 100dvh) { :root { --u: min(calc(100vw / 1920), calc(100dvh / 1080)); } }
@@ -336,7 +338,10 @@ WORKS.forEach((w, i) => {
   $('#home-index').append(li);
   // index inside a work: number + title
   const li2 = el('li', '', `${w.no}  ${w.title}`);
-  li2.addEventListener('click', e => { e.stopPropagation(); closeIndex(true); goWork(i, 0); });
+  li2.addEventListener('click', e => { e.stopPropagation();
+    // touch: tapping the short preview (shown after a swipe) opens the full index, as hovering does on desktop
+    if (nav.classList.contains('preview') && !nav.classList.contains('open') && (matchMedia('(hover: none)').matches || isMobile())) { openIndex(); return; }
+    closeIndex(true); goWork(i, 0); });
   indexEl.append(li2);
 });
 
@@ -413,8 +418,13 @@ function layoutWork(i) {
       const v = e.tagName === 'VIDEO' ? e : e.querySelector('video'); if (v && v.dataset.d && v.src !== v.dataset.d) { v.poster = v.dataset.p; v.src = v.dataset.d; }
       Object.assign(e.style, { left: u(it.x), top: u(it.y), width: u(it.w), height: u(it.h), fontSize: u(it.w / 100), borderRadius: it.radius ? u(it.radius) : '' }); }); return; }
     const spec = PHONE[`${WORKS[i].no}-${k + 1}`];
-    if (spec) {          // Ken's phone frame: his 390 x 844 positions, scaled to fit the screen and centred
-      const s = Math.min(innerWidth / 390, innerHeight / 844), ox = (innerWidth - 390 * s) / 2, oy = (innerHeight - 844 * s) / 2;
+    if (spec) {
+      // Ken's phone frame: scaled to the screen's width (as in Figma), the pictures centred between the top line and the project line.
+      // A browser's toolbars take height, so fitting the whole 844-high frame made everything ~20 % smaller; now a slide only
+      // shrinks if its pictures don't fit between top (48) and the project line (70 from the bottom).
+      const top = 48, avail = innerHeight - top - 70;
+      const y0 = Math.min(...spec.map(r => r[2])), y1 = Math.max(...spec.map(r => r[2] + r[4]));
+      const s = Math.min(innerWidth / 390, avail / (y1 - y0)), ox = (innerWidth - 390 * s) / 2, oy = top + (avail - (y1 - y0) * s) / 2 - y0 * s;
       els.forEach(e => { e.style.display = 'none'; });
       spec.forEach(([j, x, y, w, h, o = {}]) => {
         const e = els[j], it = items[j]; if (!e) return;
