@@ -548,7 +548,8 @@ $('#home').addEventListener('click', () => { closeIndex(true); goLanding(); });
 // On touch screens a tap outside the open index only closes it.
 const tapCloses = () => { if (nav.classList.contains('open') && matchMedia('(hover: none)').matches) { closeIndex(true); return true; } closeIndex(true); return false; };
 $('#next').addEventListener('click', () => { if (!tapCloses()) nextSlide(); });
-$('#prev').addEventListener('click', () => { if (!tapCloses()) prevSlide(); });
+// phones: a tap anywhere goes to the next slide (slides loop, so there is no left/right; Ken, 2026-11-21)
+$('#prev').addEventListener('click', () => { if (!tapCloses()) (isMobile() ? nextSlide() : prevSlide()); });
 
 // One work per scroll gesture: act on the first movement, then wait for the wheel to go quiet.
 let wheelLocked = false, wheelQuiet, wheelAt = 0;
