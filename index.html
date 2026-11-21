@@ -46,6 +46,51 @@
   .slide .safari .bar i:nth-child(3) { left: 7em; background: rgb(51, 199, 89); }
   .slide .safari .bar b { position: absolute; left: 30%; width: 40%; top: 1.14em; height: 3.14em; background: #fff; border-radius: 0.5em; }
   .slide .safari video { left: 0; top: 5.57em; width: 100%; height: calc(100% - 5.57em); }
+  .slide .zoom { transform-origin: 0 0; transition: transform .7s cubic-bezier(.65, 0, .2, 1); }
+  .slide.intro-on .zoom { transform: var(--intro); }
+  .slide .after { transition: opacity .5s ease .25s; }
+  .slide.intro-on .after { opacity: 0; transition: opacity .3s ease; }
+  body.mobile .slide.intro-on .zoom { transform: none; }
+  body.mobile .slide.intro-on .after { opacity: 1; }
+  /* Phone and Instagram mocks. Sizes in em; 1em = 1% of the mock's width */
+  .slide .phone, .slide .igpost { position: absolute; background: rgb(38, 38, 38); }
+  .slide .phone video { left: 2.9em; top: 2.9em; width: calc(100% - 5.8em); height: calc(100% - 5.8em); border-radius: 13.1em; }
+  .slide .igpost .band { position: absolute; left: 0; top: 24.7em; width: 100%; height: 154.57em; background: #000; }
+  .slide .igpost .shot { position: absolute; left: 0; top: 39.94em; width: 100%; height: 124.7em; }
+  .slide .igpost .shot video { inset: 0; width: 100%; height: 100%; }
+  .slide .igpost .icons { position: absolute; left: 5.64em; top: 167.68em; width: 88.72em; }
+  .slide .igpost .av, .slide .igreel .av { position: absolute; width: 8.23em; height: 8.23em; border-radius: 50%; background: rgb(28, 71, 242); }
+  .slide .igpost .av { left: 6.1em; top: 28.66em; }
+  .slide .acct { position: absolute; font-size: 3.1em; line-height: 1; letter-spacing: .04em; text-transform: uppercase; color: rgb(239, 237, 225); white-space: nowrap; }
+  .slide .igpost .acct { left: 5.5em; top: 9.95em; }
+  .slide .igreel { position: absolute; background: #111; }
+  .slide .igreel video { inset: 0; width: 100%; height: 100%; }
+  .slide .igreel .icons { position: absolute; left: 85.05em; top: 134.74em; width: 9.23em; }
+  .slide .igreel .av { left: 10.12em; top: 181.5em; }
+  .slide .igreel .acct { left: 6.74em; top: 59.3em; }
+  /* Instagram post mock for 3:4 posts (ICA), from the Figma mock in 06-3 */
+  .slide .igpost.p34 .band { top: 17.53em; width: 99.7em; height: 164.33em; }
+  .slide .igpost.p34 .shot { top: 32.77em; width: 99.7em; height: 132.93em; overflow: hidden; }
+  .slide .igpost.p34 .icons { top: 168.75em; }
+  .slide .igpost.p34 .av { top: 21.5em; background: rgb(0, 100, 79); }
+  .slide .igpost.p34 .acct { font-size: 3.2em; left: 5.33em; top: 7.48em; }
+  /* Carousel: one row of post slides that steps through the phone; the slides still to come wait in a strip beside it */
+  .slide .strip { position: absolute; }
+  .slide .track { position: absolute; inset: 0; display: flex; transition: transform .45s cubic-bezier(.65, 0, .2, 1); will-change: transform; }
+  .slide .track img { position: relative; flex: 0 0 auto; width: var(--cell); height: 100%; }
+  /* story phone: a 9:16 story at the top of the screen, the reply bar under it (1em = 1% of the phone's width) */
+  .slide .phone.story::before { content: ''; position: absolute; left: 2.9em; top: 2.9em; right: 2.9em; bottom: 2.9em; background: #000; border-radius: 13.1em; }
+  .slide .phone.story video { height: 167.47em; border-radius: 13.1em 13.1em 4em 4em; }
+  .slide .phone.story .reply { position: absolute; left: 7.3em; right: 7.3em; top: 177.3em; height: 12.2em; display: flex; align-items: center; gap: 4.3em; }
+  .slide .phone.story .reply b { flex: 1; align-self: stretch; box-sizing: border-box; border: .45em solid rgba(255, 255, 255, .7); border-radius: 6.1em; display: flex; align-items: center; padding-left: 4.9em; font-weight: normal; }
+  .slide .phone.story .reply b span { font-size: 4.3em; color: rgba(255, 255, 255, .85); white-space: nowrap; }
+  .slide .phone.story .reply svg { width: 7.3em; height: 7.3em; flex: none; }
+  /* a 'bg' item fills the whole window behind its slide (the light leak) */
+  .page .bg { position: absolute; inset: 0; visibility: hidden; }
+  .page .bg.on { visibility: visible; }
+  .page .bg video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  /* on phones a 'wide' background is shown whole-height-free: enlarged past the sides so its centre (the wordmark) stays large and uncut */
+  body.mobile .page .bg.wide video { left: -39%; width: 178%; object-fit: contain; }
   .slide .tocome { position: absolute; inset: 0; display: grid; place-items: center; color: var(--grey); }
 
   /* Click halves: left = previous slide, right = next slide */
@@ -63,6 +108,11 @@
   #projline, #nav { opacity: 0; visibility: hidden; transition: opacity 200ms linear, visibility 0s linear 200ms; }
   body.work #projline, body.work #nav { opacity: 1; visibility: visible; transition: opacity 200ms linear 200ms; }
 
+  /* Phone only: INDEX, top right, back to the landing page */
+  #home { position: fixed; z-index: 7; right: 15px; top: 15px; display: none; cursor: pointer; }
+  body.mobile.work #home { display: block; }
+  body.mobile #index li.home { display: none; }
+  #index li.home .nn { color: transparent; }          /* the number keeps its space but is not shown */
   /* Index inside a work: number + title, 30 px lines, starts 23 px in from the label */
   #index { list-style: none; padding-left: calc(var(--u) * 23); white-space: pre; opacity: 0; pointer-events: none; transition: opacity 180ms linear; }
   #index li { color: var(--grey); cursor: pointer; width: max-content; padding-right: calc(var(--u) * 24); }
@@ -119,12 +169,14 @@
 <div id="projline"></div>
 <nav id="nav">
   <a id="label">SELECTED WORKS</a>
-  <ol id="index"></ol>
+  <ol id="index"><li class="home"><span class="nn">00</span>  INDEX</li></ol>
 </nav>
+<a id="home">INDEX</a>
 
 <script>
 /* ---------- Content. Positions are the Figma frame coordinates (1920 x 1080). ---------- */
 const A = 'assets/';
+const PGH = [1, 2, 3, 4, 5, 6, 7].map(n => `06-pgh-${n}.jpg`);   // "This Month in Pittsburgh", November: the seven slides of one post
 const WORKS = [
   { no: '01', title: 'Jannis Kounellis', client: 'Fondazione Prada', scope: 'exhibition catalogue', year: '2022', slides: [
     [ { img: '01-cover.jpg', x: 178, y: 216, w: 488, h: 649 }, { img: '01-spread-1.jpg', x: 759, y: 216, w: 1002, h: 649 } ],
@@ -138,21 +190,48 @@ const WORKS = [
     [ { img: '02-exhibition.jpg', x: 384, y: 108, w: 1152, h: 864 } ],
   ] },
   { no: '03', title: 'Sirens', client: 'EVA Foundation', scope: 'exhibition catalogue', year: '2026', oneLine: true, slides: [
-    [ { img: '03-cover-front.jpg', x: 394, y: 108, w: 559, h: 864 }, { img: '03-cover-back.jpg', x: 968, y: 108, w: 559, h: 864 } ],
-    [ { img: '03-essay-opener.jpg', x: 198, y: 248, w: 754, h: 583 }, { img: '03-index.jpg', x: 967, y: 248, w: 754, h: 583 } ],
-    [ { img: '03-judy-chicago.jpg', x: 198, y: 248, w: 754, h: 583 }, { img: '03-plates.jpg', x: 967, y: 248, w: 754, h: 583 } ],
+    [ { img: '03-cover-back.jpg', x: 515, y: 205, w: 437, h: 669 }, { img: '03-cover-front.jpg', x: 964, y: 205, w: 441, h: 669 } ],
+    [ { img: '03-judy-chicago.jpg', x: 198, y: 248, w: 754, h: 583 }, { img: '03-index.jpg', x: 967, y: 248, w: 754, h: 583 } ],
+    [ { img: '03-spread-19.jpg', x: 583, y: 248, w: 754, h: 583 } ],
   ] },
   { no: '04', title: 'What a Wonderful World', client: 'Julia Stoschek Foundation', scope: 'exhibition identity and campaign', year: '2026', slides: [
-    [ { img: '04-lockup.jpg', x: 511, y: 216, w: 518, h: 648 }, { img: '04-artist-list.jpg', x: 1044, y: 216, w: 365, h: 648 } ],
     [ { video: '04-hero-reel.mp4', poster: '04-hero-reel-poster.jpg', x: 23, y: 0, w: 1875, h: 1093 } ],
-    [ { safari: true, video: '04-web-desktop.mp4', poster: '04-web-desktop-poster.jpg', x: 284, y: 216, w: 999, h: 648 },
-      { video: '04-web-mobile.mp4', poster: '04-web-mobile-poster.jpg', x: 1311, y: 216, w: 325, h: 648, radius: 52 } ],
-    [ { img: '04-ig-post.png', x: 620, y: 216, w: 328, h: 654 }, { img: '04-ig-reel.png', x: 978, y: 219, w: 325, h: 648 } ],
+    [ { img: '04-lockup.jpg', x: 511, y: 216, w: 518, h: 648 }, { img: '04-artist-list.jpg', x: 1044, y: 216, w: 365, h: 648 } ],
+    // website: cut from Ken's reference video (same frames and timing, backdrop removed). The desktop screen plays alone until 5.0 s,
+    // then eases down beside the phone. Positions keep the reference's proportions, scaled to the 10% margins.
+    [ { phone: true, video: '04-web-phone.mp4', poster: '04-web-phone-poster.jpg', x: 192, y: 247.9, w: 293, h: 584.3, radius: 46.9, after: true },
+      { video: '04-web-desktop.mp4', poster: '04-web-desktop-poster.jpg', x: 559.4, y: 247.9, w: 1168.6, h: 584.3, intro: { x: 192, y: 154.5, w: 1536, until: 5.0 } } ],
+    [ { igpost: true, video: '04-ig-post.mp4', poster: '04-ig-post-poster.jpg', x: 620, y: 216, w: 328, h: 654, radius: 52 },
+      { igreel: true, video: '04-ig-reel.mp4', poster: '04-ig-reel-poster.jpg', x: 978, y: 219, w: 325, h: 648, radius: 52 } ],
   ] },
-  { no: '05', title: 'Ornament', client: 'Yale University Art Gallery', scope: 'identity and wayfinding', year: '2023', slides: [] },
-  { no: '06', title: 'ICA Pittsburgh', client: 'Institute for Contemporary Art Pittsburgh', scope: 'social identity', year: '2026', slides: [] },
+  { no: '05', title: 'Ornament', client: 'Yale University Art Gallery', scope: 'identity and wayfinding', year: '2023', slides: [
+    [ { img: '05-installed.jpg', x: 312, y: 108, w: 1296, h: 864 } ],
+    [ { img: '05-elevation.jpg', x: 192, y: 108, w: 1536, h: 864 } ],
+  ] },
+  { no: '06', title: 'ICA Pittsburgh', client: 'Institute for Contemporary Art Pittsburgh', scope: 'social identity', year: '2026', slides: [
+    [ { video: '06-key-visual.mp4', poster: '06-key-visual-poster.jpg', x: 192, y: 108, w: 1536, h: 864 } ],
+    [ { img: '06-oq-1.jpg', x: 216, y: 216, w: 486, h: 648 }, { img: '06-oq-2.jpg', x: 717, y: 216, w: 486, h: 648 }, { img: '06-oq-3.jpg', x: 1218, y: 216, w: 486, h: 648 } ],   // stills (Ken: "those should be still, not video")
+    // one carousel post, played as a slideshow: the phone stays put and the seven slides step through it one at a time;
+    // the next three slides wait to its right and the row is masked after the third (Ken's Figma edit). Phones show the phone alone.
+    [ { igpost: true, p34: true, acct: 'icapittsburgh', carousel: PGH, cell: 327, x: 309, y: 216, w: 328, h: 654, radius: 52 },
+      { carousel: PGH, offset: 1, cell: 327, x: 636, y: 323.5, w: 981, h: 436, desktopOnly: true } ],
+    [ { img: '06-wall-01.jpg', x: 313, y: 108, w: 323.5, h: 431.3 }, { img: '06-wall-02.jpg', x: 636.5, y: 108, w: 323.5, h: 431.3 }, { img: '06-wall-05.jpg', x: 960, y: 108, w: 323.5, h: 431.3 }, { img: '06-wall-03.jpg', x: 1283.5, y: 108, w: 323.5, h: 431.3 },
+      { img: '06-wall-12.jpg', x: 313, y: 538.9, w: 323.5, h: 431.3 }, { img: '06-wall-11.jpg', x: 636.5, y: 538.9, w: 323.5, h: 431.3 }, { img: '06-wall-06.jpg', x: 960, y: 538.9, w: 323.5, h: 431.3 }, { img: '06-wall-10.jpg', x: 1283.5, y: 538.9, w: 323.5, h: 431.3 } ],
+  ] },
   { no: '07', title: 'DOOM', client: 'Yale School of Art', scope: 'exhibition identity', year: '2024', slides: [] },
-  { no: '08', title: 'Hyundai Artlab', client: 'Hyundai Motor Company', scope: 'branding and digital commission', year: '2026', slides: [] },
+  { no: '08', title: 'Hyundai Artlab', client: 'Hyundai Motor Company', scope: 'branding and digital commission', year: '2026', slides: [
+    // four slides, kept minimal (Ken): the "Hyundai Artlab" wordmark from the film outro, alone, filling the window; the light leaks in use,
+    // three stories stepping through one phone (story header and reply bar) while the matching clean leak fills the window behind;
+    // the digital commissions on the site beside a supercut of their social pieces; three other pieces, the ICA 06-2 arrangement:
+    // the Editor's Pick template (title sliding to quote), World Art Day, a Tate programme poster. Phones are the 328 x 654 phone of the other works.
+    [ { bg: true, wide: true, video: '08-wordmark.mp4', poster: '08-wordmark-poster.jpg', x: 0, y: 0, w: 1920, h: 1080 } ],
+    [ { bg: true, video: '08-leak.mp4', poster: '08-leak-poster.jpg', x: 0, y: 0, w: 1920, h: 1080 },
+      { phone: true, story: true, video: '08-stories.mp4', poster: '08-stories-poster.jpg', x: 796, y: 213, w: 328, h: 654, radius: 52.5 } ],
+    [ { phone: true, video: '08-commission-phone.mp4', poster: '08-commission-phone-poster.jpg', x: 192, y: 213, w: 328, h: 654, radius: 52.5 },
+      { video: '08-commission-site.mp4', poster: '08-commission-site-poster.jpg', x: 565.3, y: 213, w: 1162.7, h: 654 } ],
+    [ { video: '08-editorspick.mp4', poster: '08-editorspick-poster.jpg', x: 216, y: 216, w: 486, h: 648 }, { video: '08-worldartday.mp4', poster: '08-worldartday-poster.jpg', x: 717, y: 216, w: 486, h: 648 },
+      { video: '08-htrc.mp4', poster: '08-htrc-poster.jpg', x: 1218, y: 216, w: 486, h: 648 } ],
+  ] },
   { no: '09', title: 'Diving into the Wreck', client: 'Yale School of Art', scope: 'publication', year: '2023', slides: [] },
   { no: '10', title: 'Dual exhibition identities', client: 'X Museum Beijing', scope: 'exhibition identity', year: '2021', slides: [] },
   { no: '11', title: 'Foreign Object Debris', client: 'Yngve Holen', scope: 'publication', year: '2021', slides: [] },
@@ -179,6 +258,9 @@ WORKS.forEach((w, i) => {
   indexEl.append(li2);
 });
 
+const IGPOST = '<div class="band"></div><i class="av"></i><span class="acct">juliastoschekfoundation</span><div class="shot"></div><svg class="icons" viewBox="0 0 291 30"><g fill="none" stroke="#EFEDE1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7.50024C12.7507 4.87896 8.99221 4.06888 6.17404 6.46918C3.35585 8.86948 2.95909 12.8826 5.17222 15.7215C7.0123 18.0817 12.581 23.0599 14.4061 24.6711C14.6102 24.8514 14.7124 24.9415 14.8315 24.9769C14.9354 25.0078 15.0491 25.0078 15.1531 24.9769C15.2722 24.9415 15.3742 24.8514 15.5785 24.6711C17.4036 23.0599 22.9722 18.0817 24.8124 15.7215C27.0255 12.8826 26.6771 8.84423 23.8105 6.46918C20.9439 4.09413 17.2492 4.87896 15 7.50024Z"/><path d="M57.2056 25.6538C51.3216 25.6538 46.5518 20.884 46.5518 15C46.5518 9.11607 51.3216 4.34619 57.2056 4.34619C63.0895 4.34619 67.8594 9.11607 67.8594 15C67.8594 16.761 67.4321 18.4222 66.6756 19.8856L67.8594 25.6538L62.0912 24.4701C60.6278 25.2266 58.9665 25.6538 57.2056 25.6538Z"/><path d="M93.4155 16.4944L99.1365 10.7733M104.989 7.28187L100.16 22.9767C99.727 24.3832 99.5103 25.0868 99.1371 25.3201C98.8134 25.5223 98.4124 25.5562 98.0598 25.4098C97.6532 25.2411 97.3233 24.5823 96.6649 23.2656L93.6062 17.1482C93.5017 16.9392 93.4494 16.8352 93.3797 16.7446C93.3177 16.6644 93.2463 16.5919 93.166 16.53C93.0775 16.4618 92.9752 16.4107 92.7756 16.3109L86.644 13.2451C85.3274 12.5868 84.669 12.2573 84.5003 11.8507C84.3539 11.4981 84.3873 11.0969 84.5896 10.7731C84.8229 10.3998 85.5264 10.1829 86.9334 9.74997L102.628 4.92079C103.734 4.58046 104.288 4.41042 104.661 4.54758C104.987 4.66705 105.243 4.92336 105.363 5.2488C105.5 5.62222 105.33 6.17522 104.99 7.28025L104.989 7.28187Z"/><path d="M290 23.4786V10.1524C290 7.58171 288.088 5.36904 285.433 4.86775C282.836 4.37742 280.164 4.37742 277.567 4.86775C274.912 5.36904 273 7.58171 273 10.1524V23.4786C273 25.0378 274.782 26.0081 276.199 25.2205L280.068 23.0685C280.953 22.5769 282.047 22.5769 282.932 23.0685L286.801 25.2205C288.218 26.0081 290 25.0378 290 23.4786Z"/></g></svg>';
+const IGREEL = '<svg class="icons" viewBox="0 0 30 130"><g fill="none" stroke="#EFEDE1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 7.50024C12.7507 4.87896 8.99221 4.06888 6.17404 6.46918C3.35585 8.86948 2.95909 12.8826 5.17222 15.7215C7.0123 18.0817 12.581 23.0599 14.4061 24.6711C14.6102 24.8514 14.7124 24.9415 14.8315 24.9769C14.9354 25.0078 15.0491 25.0078 15.1531 24.9769C15.2722 24.9415 15.3742 24.8514 15.5785 24.6711C17.4036 23.0599 22.9722 18.0817 24.8124 15.7215C27.0255 12.8826 26.6771 8.84423 23.8105 6.46918C20.9439 4.09413 17.2492 4.87896 15 7.50024Z"/><path transform="translate(-42.3 53.6)" d="M57.2056 25.6538C51.3216 25.6538 46.5518 20.884 46.5518 15C46.5518 9.11607 51.3216 4.34619 57.2056 4.34619C63.0895 4.34619 67.8594 9.11607 67.8594 15C67.8594 16.761 67.4321 18.4222 66.6756 19.8856L67.8594 25.6538L62.0912 24.4701C60.6278 25.2266 58.9665 25.6538 57.2056 25.6538Z"/><path transform="translate(-79.6 102.9)" d="M93.4155 16.4944L99.1365 10.7733M104.989 7.28187L100.16 22.9767C99.727 24.3832 99.5103 25.0868 99.1371 25.3201C98.8134 25.5223 98.4124 25.5562 98.0598 25.4098C97.6532 25.2411 97.3233 24.5823 96.6649 23.2656L93.6062 17.1482C93.5017 16.9392 93.4494 16.8352 93.3797 16.7446C93.3177 16.6644 93.2463 16.5919 93.166 16.53C93.0775 16.4618 92.9752 16.4107 92.7756 16.3109L86.644 13.2451C85.3274 12.5868 84.669 12.2573 84.5003 11.8507C84.3539 11.4981 84.3873 11.0969 84.5896 10.7731C84.8229 10.3998 85.5264 10.1829 86.9334 9.74997L102.628 4.92079C103.734 4.58046 104.288 4.41042 104.661 4.54758C104.987 4.66705 105.243 4.92336 105.363 5.2488C105.5 5.62222 105.33 6.17522 104.99 7.28025L104.989 7.28187Z"/></g></svg><i class="av"></i><span class="acct">juliastoschekfoundation</span>';
+const STORYBAR = '<div class="reply"><b><span>Send message</span></b><svg viewBox="0 0 30 30"><path fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 7.50024C12.7507 4.87896 8.99221 4.06888 6.17404 6.46918C3.35585 8.86948 2.95909 12.8826 5.17222 15.7215C7.0123 18.0817 12.581 23.0599 14.4061 24.6711C14.6102 24.8514 14.7124 24.9415 14.8315 24.9769C14.9354 25.0078 15.0491 25.0078 15.1531 24.9769C15.2722 24.9415 15.3742 24.8514 15.5785 24.6711C17.4036 23.0599 22.9722 18.0817 24.8124 15.7215C27.0255 12.8826 26.6771 8.84423 23.8105 6.46918C20.9439 4.09413 17.2492 4.87896 15 7.50024Z"/></svg><svg viewBox="80 0 30 30"><path fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M93.4155 16.4944L99.1365 10.7733M104.989 7.28187L100.16 22.9767C99.727 24.3832 99.5103 25.0868 99.1371 25.3201C98.8134 25.5223 98.4124 25.5562 98.0598 25.4098C97.6532 25.2411 97.3233 24.5823 96.6649 23.2656L93.6062 17.1482C93.5017 16.9392 93.4494 16.8352 93.3797 16.7446C93.3177 16.6644 93.2463 16.5919 93.166 16.53C93.0775 16.4618 92.9752 16.4107 92.7756 16.3109L86.644 13.2451C85.3274 12.5868 84.669 12.2573 84.5003 11.8507C84.3539 11.4981 84.3873 11.0969 84.5896 10.7731C84.8229 10.3998 85.5264 10.1829 86.9334 9.74997L102.628 4.92079C103.734 4.58046 104.288 4.41042 104.661 4.54758C104.987 4.66705 105.243 4.92336 105.363 5.2488C105.5 5.62222 105.33 6.17522 104.99 7.28025L104.989 7.28187Z"/></svg></div>';
 const pages = new Map();          // work number -> page element (built on first visit)
 function buildWork(i) {
   if (pages.has(i)) return pages.get(i);
@@ -188,9 +270,29 @@ function buildWork(i) {
     if (!items) s.append(el('div', 'tocome', 'Slides to come'));
     else items.forEach(it => {
       let m;
-      if (it.video) { m = el('video'); m.muted = true; m.loop = true; m.playsInline = true; m.preload = 'metadata'; m.poster = A + it.poster; m.src = A + it.video; }
+      if (it.bg) { const v = el('video'); v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'metadata'; v.poster = A + it.poster; v.src = A + it.video;
+        const b = el('div', 'bg' + (it.wide ? ' wide' : '')); b.append(v); page.append(b); s._bg = b; return; }
+      if (it.carousel) {          // a row of slides; 'offset' starts it that many slides in (the waiting strip starts at slide 2)
+        const n = it.carousel.length, cellEm = it.cell / it.w * 100, count = it.offset ? Math.ceil(it.w / it.cell) + n + 1 : n + 1;
+        m = el('div', 'track'); m.style.setProperty('--cell', cellEm + 'em');
+        for (let j = 0; j < count; j++) { const im = el('img'); im.alt = ''; im.draggable = false; im.decoding = 'sync'; im.src = A + it.carousel[(j + (it.offset || 0)) % n]; m.append(im); }
+        (s._tracks = s._tracks || []).push({ el: m, cell: cellEm }); if (!s._car) carousel(s, n);
+        if (!it.igpost) { const d = el('div', 'strip'); d.append(m); m = d; }
+      }
+      else if (it.video) { m = el('video'); m.muted = true; m.loop = true; m.playsInline = true; m.preload = 'metadata'; m.poster = A + it.poster; m.src = A + it.video; }
       else { m = el('img'); m.alt = ''; m.draggable = false; m.decoding = 'async'; m.src = A + it.img; }
       if (it.safari) { const win = el('div', 'safari', '<div class="bar"><i></i><i></i><i></i><b></b></div>'); win.append(m); m = win; }
+      if (it.phone) { const d = el('div', 'phone' + (it.story ? ' story' : '')); d.append(m); if (it.story) d.insertAdjacentHTML('beforeend', STORYBAR); m = d; }
+      if (it.igpost) { const d = el('div', 'igpost' + (it.p34 ? ' p34' : ''), it.acct ? IGPOST.replace('juliastoschekfoundation', it.acct) : IGPOST); d.querySelector('.shot').append(m); m = d; }
+      if (it.igreel) { const d = el('div', 'igreel', IGREEL); d.prepend(m); m = d; }
+      // an item with 'intro' starts large and eases to its place when its video reaches 'until' seconds; 'after' items appear then
+      if (it.intro) { m.classList.add('zoom'); m.style.setProperty('--intro', `translate(${u(it.intro.x - it.x)}, ${u(it.intro.y - it.y)}) scale(${it.intro.w / it.w})`);
+        const v = m.tagName === 'VIDEO' ? m : m.querySelector('video'); s.classList.add('intro-on');
+        const tick = () => { if (s.classList.contains('on')) { s.classList.toggle('intro-on', v.currentTime < it.intro.until);
+            s.querySelectorAll('.after video, video.after').forEach(o => { if (Math.abs(o.currentTime - v.currentTime) > 0.12) o.currentTime = v.currentTime; }); }   // keep the phone in step with the desktop
+          requestAnimationFrame(tick); v.addEventListener('timeupdate', () => { if (s.classList.contains('on')) s.classList.toggle('intro-on', v.currentTime < it.intro.until); }); };
+        requestAnimationFrame(tick); }
+      if (it.after) m.classList.add('after');
       m.classList.add('it');
       s.append(m);
     });
@@ -198,6 +300,15 @@ function buildWork(i) {
   });
   page.append(stage); pages.set(i, page); layoutWork(i);
   return page;
+}
+
+// Slideshow for a carousel post: every track on the slide moves one slide to the left together, holds, and repeats.
+// After the last slide the first follows on, and the row jumps back to the start unseen.
+function carousel(s, n) {
+  let k = 0, timer = null;
+  const set = anim => s._tracks.forEach(t => { t.el.style.transition = anim ? '' : 'none'; t.el.style.transform = `translateX(${-k * t.cell}em)`; });
+  const step = () => { if (k >= n) { k = 0; set(false); void s.offsetWidth; } k++; set(true); };
+  s._car = { start() { this.stop(); k = 0; set(false); timer = setInterval(step, 1300); }, stop() { clearInterval(timer); timer = null; } };
 }
 
 /* ---------- Layout ----------
@@ -211,8 +322,12 @@ function layoutWork(i) {
   const slides = pages.get(i).querySelectorAll('.slide');
   WORKS[i].slides.forEach((items, k) => {
     if (!items) return;
-    const els = slides[k].querySelectorAll('.it');
+    items = items.filter(it => !it.bg);
+    if (!items.length) return;
+    let els = [...slides[k].querySelectorAll('.it')];
+    els.forEach((e, j) => { e.style.display = items[j].desktopOnly && isMobile() ? 'none' : ''; });
     if (!isMobile()) { items.forEach((it, j) => Object.assign(els[j].style, { left: u(it.x), top: u(it.y), width: u(it.w), height: u(it.h), fontSize: u(it.w / 100), borderRadius: it.radius ? u(it.radius) : '' })); return; }
+    els = els.filter((e, j) => !items[j].desktopOnly); items = items.filter(it => !it.desktopOnly);
     const pad = 16, top = 48, bottom = 64, gap = 28;
     const aw = innerWidth - pad * 2, ah = innerHeight - top - bottom;
     const x0 = Math.min(...items.map(it => it.x)), y0 = Math.min(...items.map(it => it.y));
@@ -243,21 +358,23 @@ let shown = landing;
 function setSlide(i, n) {
   const slides = pages.get(i).querySelectorAll('.slide');
   slides.forEach((s, k) => {
-    const on = k === n; s.classList.toggle('on', on);
+    const on = k === n; s.classList.toggle('on', on); if (on && s.querySelector('.zoom')) s.classList.add('intro-on');
     s.querySelectorAll('video').forEach(v => { if (on) { v.currentTime = 0; v.play().catch(() => {}); } else v.pause(); });
+    if (s._car) { if (on) s._car.start(); else s._car.stop(); }
+    if (s._bg) { s._bg.classList.toggle('on', on); const v = s._bg.querySelector('video'); if (on) { v.currentTime = 0; v.play().catch(() => {}); } else v.pause(); }
   });
 }
 function chrome() {
   document.body.classList.toggle('work', cur >= 0);
   if (cur >= 0) {
     const w = WORKS[cur];
-    projline.innerHTML = `<i>${w.title}</i>, ${w.scope}, ${w.year}`;
-    [...indexEl.children].forEach((li, k) => { li.classList.toggle('cur', k === cur); li.classList.toggle('near', Math.abs(k - cur) <= 1); });
+    projline.innerHTML = `<i>${w.title}</i>, ${w.client}, ${w.scope}, ${w.year}`;
+    indexEl.querySelectorAll('li:not(.home)').forEach((li, k) => { li.classList.toggle('cur', k === cur); li.classList.toggle('near', Math.abs(k - cur) <= 1); });
   }
   const hash = cur < 0 ? '' : `#${WORKS[cur].no}-${slide + 1}`;
   try { history.replaceState(null, '', location.pathname + location.search + hash); } catch (e) {}
   // warm the next pictures
-  if (cur >= 0) { const nx = WORKS[cur].slides[slide + 1] || (WORKS[cur + 1] || {slides: []}).slides[0]; (nx || []).forEach(it => { new Image().src = A + (it.img || it.poster); }); }
+  if (cur >= 0) { const nx = WORKS[cur].slides[slide + 1] || (WORKS[cur + 1] || {slides: []}).slides[0]; (nx || []).forEach(it => { const p = it.img || it.poster || (it.carousel && it.carousel[0]); if (p) new Image().src = A + p; }); }
 }
 
 // Move to a page (landing or a work). dir: 'down' = the new page comes from below, 'up' = from above, null = cut.
@@ -274,7 +391,7 @@ function show(target, n, dir) {
   to.className = 'page moving'; from.className = 'page moving leave-' + dir;
   setTimeout(() => { from.style.display = 'none'; from.className = 'page'; to.className = 'page'; stopVideos(from); shown = to; busy = false; }, MOVE + 30);
 }
-function stopVideos(page) { page.querySelectorAll('video').forEach(v => v.pause()); }
+function stopVideos(page) { page.querySelectorAll('video').forEach(v => v.pause()); page.querySelectorAll('.slide').forEach(s => { if (s._car) s._car.stop(); }); }
 
 function goWork(i, n) { show(i, n, cur < 0 || i > cur ? 'down' : i < cur ? 'up' : null); }
 function goLanding() { show(-1, 0, 'up'); }
@@ -306,10 +423,12 @@ function closeIndex(now) { clearTimeout(closeTimer); if (now) nav.classList.remo
 nav.addEventListener('pointerenter', e => { if (e.pointerType !== 'touch') openIndex(); });
 nav.addEventListener('pointerleave', e => { if (e.pointerType !== 'touch') closeIndex(false); });
 $('#label').addEventListener('click', e => {
-  // mouse: back to the landing page. touch (no hover): first tap opens the index, second tap goes home.
-  if (matchMedia('(hover: none)').matches && !nav.classList.contains('open')) { openIndex(); return; }
+  // mouse: back to the landing page. touch (no hover): tapping opens and closes the index; INDEX (top right) goes home.
+  if (matchMedia('(hover: none)').matches || isMobile()) { nav.classList.contains('open') ? closeIndex(true) : openIndex(); return; }
   closeIndex(true); goLanding();
 });
+indexEl.querySelector('.home').addEventListener('click', e => { e.stopPropagation(); closeIndex(true); goLanding(); });
+$('#home').addEventListener('click', () => { closeIndex(true); goLanding(); });
 
 /* ---------- Input ---------- */
 // On touch screens a tap outside the open index only closes it.
